@@ -1,0 +1,42 @@
+apiVersion: appconnect.ibm.com/v1beta1
+kind: IntegrationServer
+metadata:
+  name: replace-with-server-name
+  labels:
+    labelname: ivo
+  namespace: replace-with-namespace
+spec:
+  enableMetrics: true
+  license:
+    accept: true
+    license: L-APEH-C49KZH
+    use: CloudPakForIntegrationProduction
+  pod:
+    containers:
+      runtime:
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 350Mi
+          requests:
+            cpu: 1000m
+            memory: 300Mi
+  adminServerSecure: true
+  router:
+    timeout: 120s
+  defaultAppName: IVO_DEFAULT_APP_NAME
+  env:
+    - name: IVO_ENV1
+      value: IVO_VALUE1
+    - name: ENV1
+      value: VALUE2
+  designerFlowsOperationMode: disabled
+  createDashboardUsers: true
+  service:
+    endpointType: http
+  version: 12.0.1
+  logFormat: basic
+  replicas: 1
+  barURL: http://nexus01dw.razvoj.gzaop.local:8081/nexus/content/repositories/releases/ace/b04-eprekrsaj/1.0.0.1/b04-eprekrsaj-1.0.0.1-ace.poc.b04-eprekrsaji.bar #replace-With-Bar-URL
+  configurations:
+    - nexus-auth

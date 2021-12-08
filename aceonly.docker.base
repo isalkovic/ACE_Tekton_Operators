@@ -1,0 +1,10 @@
+FROM icr.io/appc-dev/ace-server@sha256:3714e2236265a557a78bc743fadd0923e4b78ee6a9f6dc321b6856bf0cd4d5fc
+
+ENV LICENSE=accept
+
+USER root
+
+
+RUN microdnf install zip
+
+USER 1000

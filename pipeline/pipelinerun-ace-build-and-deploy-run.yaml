@@ -1,0 +1,15 @@
+﻿apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: ace-build-and-deploy-pipeline-run
+  labels:
+    tekton.dev/pipeline: new-pipeline
+spec:
+  pipelineRef:
+    name: ace-build-and-deploy-pipeline
+  serviceAccountName: pipeline
+  timeout: 1h0m0s
+  workspaces:
+    - name: git-source
+      persistentVolumeClaim:
+        claimName: tekton-pvc

@@ -1,0 +1,21 @@
+﻿apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: ace-deploy-crs
+spec:
+  steps:
+    - image: 'quay.io/openshift/origin-cli:latest'
+      name: deploy-crs
+      resources: {}
+      script: >
+        echo "========== Applying configuration CR yamls to Openshift =========="
+
+        for cr in /workspace/output/operator_resources_CRs/generated/configurations/*.yaml ; do
+        oc apply -f "$cr" ; done
+
+        echo "========== Applying integration server CR yaml to Openshift =========="
+
+        oc apply -f /workspace/output/operator_resources_CRs/generated/integrationServer-generated.yaml
+  workspaces:
+    - description: The git repo has been cloned onto the volume backing this Workspace.
+      name: output

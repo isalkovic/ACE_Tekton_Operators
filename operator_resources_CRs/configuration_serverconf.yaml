@@ -1,0 +1,12 @@
+apiVersion: appconnect.ibm.com/v1beta1
+kind: Configuration
+metadata:
+  namespace: replace-with-namespace
+  name: replace-with-serverconf-name
+  labels:
+    labelname: ivo
+spec:
+  data: replace-with-serverconf-base64
+  description: IVO_description
+  secretName: IVO_k82_secret_name-may_be_optional
+  type: serverconf

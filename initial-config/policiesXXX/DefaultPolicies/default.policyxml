@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<policies>
+  <policy policyType="UserDefined" policyName="DefaultPolicies" policyTemplate="UserDefined">
+    <prop1>Policy test</prop1>
+    <prop2>Ivo was here</prop2>
+    <prop3>100</prop3>
+  </policy>
+</policies>

@@ -1,0 +1,64 @@
+﻿apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: ace-nexus-upload-bar
+spec:
+  params:
+    - name: nexusServerBaseURL
+      description: The Base URL of the Nexus server where the bar file will be uploaded
+      default: ''
+      type: string
+    - name: nexusRepositoryName
+      description: The name of the Nexus repository, where the bar file will be uploaded
+      default: ''
+      type: string
+    - name: nexusPath
+      description: The path of the Nexus repository, where the bar file will be uploaded, for example - "org/dept"
+      default: 'org/dept'
+      type: string
+    - name: nexusUploadUserName
+      description: The Nexus user which will upload the bar file
+      default: 'admin'
+      type: string
+    - name: nexusUploadUserPassword
+      description: The Nexus user's password
+      default: 'admin123'
+      type: string
+    - name: barNameWithoutExtension
+      description: The name of the bar file (without .bar extension) which was previously generated - it will be available under the same name-version on Nexus
+      default: 'barFileNameTask'
+      type: string
+    - name: barVersion
+      description: The version of the bar file which was previously generated - it will be available under the same name-version on Nexus
+      default: ''
+      type: string
+  steps:
+    - image: 'quay.io/openshift/origin-cli:latest'
+      name: upload-bar
+      env:
+          - name: NEXUS_SERVER_BASE_URL
+            value: $(params.nexusServerBaseURL)
+          - name: NEXUS_REPOSITORY_NAME
+            value: $(params.nexusRepositoryName)
+          - name: NEXUS_PATH
+            value: $(params.nexusPath)
+          - name: NEXUS_UPLOAD_USER_NAME
+            value: $(params.nexusUploadUserName)
+          - name: NEXUS_UPLOAD_USER_PASSWORD
+            value: $(params.nexusUploadUserPassword)
+          - name: BAR_NAME_WITHOUT_EXTENSION
+            value: $(params.barNameWithoutExtension)
+          - name: BAR_VERSION
+            value: $(params.barVersion)
+      resources: {}
+      script: >
+        find /workspace
+
+        echo "========== Uploading the bar file to the Nexus repository =========="
+
+        curl -v -u ${NEXUS_UPLOAD_USER_NAME}:${NEXUS_UPLOAD_USER_PASSWORD} --upload-file
+        /workspace/output/${BAR_NAME_WITHOUT_EXTENSION}-${BAR_VERSION}.bar
+        ${NEXUS_SERVER_BASE_URL}/repository/${NEXUS_REPOSITORY_NAME}/${NEXUS_PATH}/${BAR_VERSION}/${BAR_NAME_WITHOUT_EXTENSION}-${BAR_VERSION}.bar
+  workspaces:
+    - description: The git repo has been cloned onto the volume backing this Workspace.
+      name: output

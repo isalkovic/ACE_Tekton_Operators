@@ -1,0 +1,21 @@
+---
+ResourceManagers:
+  JVM:
+    #truststoreType: 'JKS'
+    #truststoreFile: '/home/aceuser/ace-server/truststore.jks'
+    #truststorePass: 'setdbparms::truststore'
+  HTTPSConnector:
+    ListenerPort: 7843
+    ReqClientAuth: false
+    KeyAlias: 'extra-key'
+    KeyPassword: 'passrods'
+    KeystoreFile: '/home/aceuser/ace-server/keystore.jks'
+    KeystorePassword: 'keystorepwd'
+    KeystoreType: 'JKS'
+    TruststoreFile: '/home/aceuser/ace-server/truststore.jks'
+    TruststorePassword: 'truststorepwd'
+    TruststoreType: 'JKS'
+
+Defaults:
+ defaultApplication: ''       # Name a default application under which independent resources will be placed
+ policyProject: 'DefaultPolicies'   # Name of the Policy project that will be used for unqualified Policy references

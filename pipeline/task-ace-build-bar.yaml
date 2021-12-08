@@ -1,0 +1,43 @@
+﻿apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: ace-build-bar
+spec:
+  params:
+    - name: barNameWithoutExtension
+      default: generatedBarFile
+      description: The name of the bar to be built, without the .bar extension
+      type: string
+    - name: barVersion
+      default: '69'
+      description: The version of the bar to be built, without the .bar extension - will be appended to bar name
+      type: string
+    - name: aceToolkitCodeDirectory
+      default: ''
+      description: The base directory containing ACE projects
+      type: string
+  steps:
+    - image: 'image-registry.openshift-image-registry.svc:5000/cp4i/ace-build-minimal'
+      name: run-ibm-int
+      env:
+          - name: BAR_NAME_WITHOUT_EXTENSION
+            value: $(params.barNameWithoutExtension)
+          - name: BAR_VERSION
+            value: $(params.barVersion)
+          - name: ACE_TOOLKIT_CODE_DIRECTORY
+            value: $(params.aceToolkitCodeDirectory)
+      resources: {}
+      script: >
+        find /workspace
+
+        echo "========== Setting mqsiprofile - environment for ACE commands =========="
+
+        source /opt/ibm/ace-12/server/bin/mqsiprofile
+
+        echo "========== Building a bar file =========="
+
+        ibmint package --input-path /workspace/output/${ACE_TOOLKIT_CODE_DIRECTORY}
+        --output-bar-file /workspace/output/${BAR_NAME_WITHOUT_EXTENSION}-${BAR_VERSION}.bar
+  workspaces:
+    - description: The git repo has been cloned onto the volume backing this Workspace.
+      name: output

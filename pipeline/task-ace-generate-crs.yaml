@@ -1,0 +1,59 @@
+﻿apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: ace-generate-crs
+spec:
+  params:
+    - name: integrationServerName
+      default: defaultname
+      description: The name of the integration server which will be deployed - will be used in Openshift deployment artefacts
+      type: string
+    - name: deploymentNamespace
+      default: ace
+      description: The name of the Openshift namespace/project , where the integration server and configuration will be deployed
+      type: string
+    - name: nexusServerBaseURL
+      description: The Base URL of the Nexus server where the bar file will be uploaded
+      default: ''
+      type: string
+    - name: nexusRepositoryName
+      description: The name of the Nexus repository, where the bar file will be uploaded
+      default: ''
+      type: string
+    - name: nexusPath
+      description: The path of the Nexus repository, where the bar file will be uploaded, for example - "org/dept"
+      default: 'org/dept'
+      type: string
+    - name: barName
+      default: generatedBarFile
+      description: The name of the bar file, without the .bar extension - will be used in generated configuration CR names
+      type: string
+    - name: barVersion
+      description: The version of the bar file which was previously generated - it will be available under the same name-version on Nexus
+      default: ''
+      type: string
+  steps:
+    - image: 'image-registry.openshift-image-registry.svc:5000/cp4i/ace-build-minimal'
+      name: generate-crs
+      env:
+          - name: INTEGRATION_SERVER_NAME
+            value: $(params.integrationServerName)
+          - name: DEPLOYMENT_NAMESPACE
+            value: $(params.deploymentNamespace)
+          - name: NEXUS_SERVER_BASE_URL
+            value: $(params.nexusServerBaseURL)
+          - name: NEXUS_REPOSITORY_NAME
+            value: $(params.nexusRepositoryName)
+          - name: NEXUS_PATH
+            value: $(params.nexusPath)
+          - name: BAR_NAME
+            value: $(params.barName)
+          - name: BAR_VERSION
+            value: $(params.barVersion)
+      resources: {}
+      script: |
+        /workspace/output/generate_CRs.sh
+        find /workspace
+  workspaces:
+    - description: The git repo has been cloned onto the volume backing this Workspace.
+      name: output

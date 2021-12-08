@@ -1,0 +1,140 @@
+﻿apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: ace-build-and-deploy-pipeline
+spec:
+  params:
+    - name: git-url
+      default: 'https://github.com/isalkovic/ACE-CICD-Jenkins_Operator.git'
+      type: string
+    - name: git-revision
+      default: main
+      type: string
+    - name: bar-name-without-extension
+      default: myBarName
+      type: string
+    - name: bar-version
+      default: '69'
+      type: string
+    - name: ace-toolkit-code-directory
+      default: ace-toolkit-code
+      type: string
+    - name: integration-server-name
+      default: defaultFromParam
+      type: string
+    - name: deployment-namespace
+      default: ace
+      type: string
+    - name: nexus-server-base-url
+      default: http://some.url
+      type: string
+    - name: nexus-repository-name
+      default: maven-releases
+      type: string
+    - name: nexus-path
+      default: org/test
+      type: string
+    - name: nexus-upload-user-name
+      default: admin
+      type: string
+    - name: nexus-upload-user-password
+      default: admin123
+      type: string
+  tasks:
+    - name: fetch-from-git
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: revision
+          value: $(params.git-revision)
+      taskRef:
+        kind: Task
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: git-source
+        - name: ssh-directory
+          workspace: git-source
+        - name: ssl-ca-directory
+          workspace: git-source
+        - name: basic-auth
+          workspace: git-source
+    - name: ace-build-bar
+      params:
+        - name: barNameWithoutExtension
+          value: $(params.bar-name-without-extension)
+        - name: barVersion
+          value: $(params.bar-version)
+        - name: aceToolkitCodeDirectory
+          value: $(params.ace-toolkit-code-directory)
+      runAfter:
+        - fetch-from-git
+      taskRef:
+        kind: Task
+        name: ace-build-bar
+      workspaces:
+        - name: output
+          workspace: git-source
+    - name: ace-generate-crs
+      params:
+        - name: integrationServerName
+          value: $(params.integration-server-name)
+        - name: deploymentNamespace
+          value: $(params.deployment-namespace)
+        - name: nexusServerBaseURL
+          value: $(params.nexus-server-base-url)
+        - name: nexusRepositoryName
+          value: $(params.nexus-repository-name)
+        - name: nexusPath
+          value: $(params.nexus-path)
+        - name: barName
+          value: $(params.bar-name-without-extension)
+        - name: barVersion
+          value: $(params.bar-version)
+      runAfter:
+        - fetch-from-git
+      taskRef:
+        kind: Task
+        name: ace-generate-crs
+      workspaces:
+        - name: output
+          workspace: git-source
+    - name: ace-nexus-upload-bar
+      params:
+        - name: nexusServerBaseURL
+          value: $(params.nexus-server-base-url)
+        - name: nexusRepositoryName
+          value: $(params.nexus-repository-name)
+        - name: nexusPath
+          value: $(params.nexus-path)
+        - name: nexusUploadUserName
+          value: $(params.nexus-upload-user-name)
+        - name: nexusUploadUserPassword
+          value: $(params.nexus-upload-user-password)
+        - name: barNameWithoutExtension
+          value: $(params.bar-name-without-extension)
+        - name: barVersion
+          value: $(params.bar-version)
+      runAfter:
+        - ace-build-bar
+      taskRef:
+        kind: Task
+        name: ace-nexus-upload-bar
+      workspaces:
+        - name: output
+          workspace: git-source
+    - name: ace-deploy-crs
+      params:
+        - name: appName
+          value: test
+      runAfter:
+        - ace-generate-crs
+        - ace-nexus-upload-bar
+      taskRef:
+        kind: Task
+        name: ace-deploy-crs
+      workspaces:
+        - name: output
+          workspace: git-source
+  workspaces:
+    - name: git-source
