@@ -37,6 +37,5 @@ spec:
   version: 12.0.1
   logFormat: basic
   replicas: 1
-  barURL: http://nexus01dw.razvoj.gzaop.local:8081/nexus/content/repositories/releases/ace/b04-eprekrsaj/1.0.0.1/b04-eprekrsaj-1.0.0.1-ace.poc.b04-eprekrsaji.bar #replace-With-Bar-URL
+  barURL: replace-With-Bar-URL
   configurations:
-    - nexus-auth

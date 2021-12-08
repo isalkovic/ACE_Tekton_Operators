@@ -33,7 +33,7 @@ spec:
       default: ''
       type: string
   steps:
-    - image: 'image-registry.openshift-image-registry.svc:5000/cp4i/ace-build-minimal'
+    - image: 'image-registry.openshift-image-registry.svc:5000/ace/ace-build-minimal'
       name: generate-crs
       env:
           - name: INTEGRATION_SERVER_NAME

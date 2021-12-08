@@ -17,7 +17,7 @@ spec:
       description: The base directory containing ACE projects
       type: string
   steps:
-    - image: 'image-registry.openshift-image-registry.svc:5000/cp4i/ace-build-minimal'
+    - image: 'image-registry.openshift-image-registry.svc:5000/ace/ace-build-minimal'
       name: run-ibm-int
       env:
           - name: BAR_NAME_WITHOUT_EXTENSION
