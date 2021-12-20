@@ -242,6 +242,7 @@ spec:
         with the git remote when performing the clone. Binding a Secret to this
         Workspace is strongly recommended over other volume types.
       name: ssh-directory
+      optional: true
     - description: |
         A Workspace containing a .gitconfig and .git-credentials file. These
         will be copied to the user's home before any git commands are run. Any
@@ -249,7 +250,9 @@ spec:
         to use ssh-directory over basic-auth whenever possible and to bind a
         Secret to this Workspace over other volume types.
       name: basic-auth
+      optional: true
     - description: |
         A workspace containing CA certificates, this will be used by Git to
         verify the peer with when fetching or pushing over HTTPS.
       name: ssl-ca-directory
+      optional: true

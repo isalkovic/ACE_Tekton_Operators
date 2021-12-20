@@ -53,12 +53,12 @@ spec:
       workspaces:
         - name: output
           workspace: git-source
-        - name: ssh-directory
-          workspace: git-source
-        - name: ssl-ca-directory
-          workspace: git-source
-        - name: basic-auth
-          workspace: git-source
+#        - name: ssh-directory
+#          workspace: git-source
+#        - name: ssl-ca-directory
+#          workspace: git-source
+#        - name: basic-auth
+#          workspace: git-source
     - name: ace-build-bar
       params:
         - name: barNameWithoutExtension
