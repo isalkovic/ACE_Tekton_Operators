@@ -20,16 +20,16 @@ spec:
       default: ace-toolkit-code
       type: string
     - name: integration-server-name
-      default: defaultfromparam
+      default: acedemnotekton
       type: string
     - name: deployment-namespace
-      default: ace
+      default: ace-demo-tekton
       type: string
     - name: nexus-server-base-url
-      default: http://example-nexusrepo-sonatype-nexus-service-ace.cp4intpg-wdc04-wuov6q-8946bbc006b7c6eb0829d088919818bb-0000.us-east.containers.appdomain.cloud
+      default: http://nexus-route-ace-demo-tekton.apps.ocp12.tec.cz.ibm.com
       type: string
     - name: nexus-repository-name
-      default: maven-releases
+      default: ace-demo-tekton
       type: string
     - name: nexus-path
       default: org/test

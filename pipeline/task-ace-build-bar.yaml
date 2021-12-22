@@ -17,7 +17,7 @@ spec:
       description: The base directory containing ACE projects
       type: string
   steps:
-    - image: 'image-registry.openshift-image-registry.svc:5000/ace/ace-build-minimal'
+    - image: 'image-registry.openshift-image-registry.svc:5000/ace-ivo/ace-with-zip'
       name: run-ibm-int
       env:
           - name: BAR_NAME_WITHOUT_EXTENSION
@@ -28,7 +28,7 @@ spec:
             value: $(params.aceToolkitCodeDirectory)
       resources: {}
       script: >
-        find /workspace
+        #!/bin/bash
 
         echo "========== Setting mqsiprofile - environment for ACE commands =========="
 
