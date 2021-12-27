@@ -1,7 +1,7 @@
 ---
 UserVariables:
   env-var-name: 'DB2CLIINIPATH'
-  env-var-value: '/home/aceuser/ace-server/extensions'
+  env-var-value: '/home/aceuser/generic'
 ResourceManagers:
   JVM:
     #truststoreType: 'JKS'
