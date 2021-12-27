@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<MessagePool xmlns="http://wwww.ibm.com/iib/test/1.0.0">
+    <InputMessage timestamp="1563653870863" nodeId="FCMComposite_1_1" name="InputMessage1" id="1563653870863-6">
+        <plainText>%7B%22PrimaryKey%22%3A+1%2C+%22FirstName%22%3A+%22Ben%22%2C+%22LastName%22%3A+%22Thompson%22%2C+%22Country%22%3A+%22GB%22%7D</plainText>
+    </InputMessage>
+    <InputMessage timestamp="1563655925031" nodeId="FCMComposite_1_1" name="InputMessage2" id="1563655925031-180">
+        <plainText>%7B%22PrimaryKey%22%3A+2%2C+%22FirstName%22%3A+%22Joe%22%2C+%22LastName%22%3A+%22Bloggs%22%2C+%22Country%22%3A+%22GB%22%7D</plainText>
+    </InputMessage>
+    <InputMessage timestamp="1563655925655" nodeId="FCMComposite_1_1" name="InputMessage3" id="1563655925655-195">
+        <plainText>%7B%22PrimaryKey%22%3A+3%2C+%22FirstName%22%3A+%22Jan%22%2C+%22LastName%22%3A+%22Modaal%22%2C+%22Country%22%3A+%22NL%22%7D</plainText>
+    </InputMessage>
+    <InputMessage timestamp="1563655926181" nodeId="FCMComposite_1_1" name="InputMessage4" id="1563655926181-212">
+        <plainText>%7B%22PrimaryKey%22%3A+4%2C+%22FirstName%22%3A+%22Otto%22%2C+%22LastName%22%3A+%22Normalverbraucher%22%2C+%22Country%22%3A+%22DE%22%7D</plainText>
+    </InputMessage>
+    <InputMessage timestamp="1563655926665" nodeId="FCMComposite_1_1" name="InputMessage5" id="1563655926665-231">
+        <plainText>%7B%22PrimaryKey%22%3A+5%2C+%22FirstName%22%3A+%22John%22%2C+%22LastName%22%3A+%22Doe%22%2C+%22Country%22%3A+%22US%22%7D</plainText>
+    </InputMessage>
+</MessagePool>

@@ -1,0 +1,21 @@
+
+
+CREATE COMPUTE MODULE DatabaseCompute_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN		
+		SET OutputRoot = InputRoot;
+		DECLARE MyRef REFERENCE TO InputRoot.JSON.Data;
+		DECLARE DBSchema CHARACTER 'DB2ADMIN';				
+		DECLARE DBTable  CHARACTER 'EMPLOYEES';
+		--INSERT INTO Database.{DBSchema}.{DBTable} (PKEY, FIRSTNAME, LASTNAME, COUNTRY)	VALUES( MyRef.PrimaryKey, MyRef.FirstName, MyRef.LastName, MyRef.Country );
+		INSERT INTO Database.MYSCHEMA.EMPLOYEES (PKEY, FIRSTNAME, LASTNAME, COUNTRY)	VALUES( RAND()*100 , 'Ivo' , 'Salkovic' , 'HR' );
+		IF (SQLCODE = 0) THEN
+            SET OutputRoot.JSON.Data.Result = 'A row was inserted into the database successfully.';
+        ELSE
+            SET OutputRoot.JSON.Data.Result =  
+            	'The insert failed. The database SQLSTATE was ' || CAST(SQLSTATE AS CHAR) || 
+            	' and the SQLCODE was ' || CAST(SQLCODE AS CHAR);            	
+        END IF;							
+		RETURN TRUE;
+	END;
+END MODULE;
