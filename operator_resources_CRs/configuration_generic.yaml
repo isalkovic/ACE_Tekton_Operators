@@ -8,5 +8,4 @@ metadata:
 spec:
   data: replace-with-generic-base64
   description: IVO_description
-  secretName: IVO_k82_secret_name-may_be_optional
   type: generic
