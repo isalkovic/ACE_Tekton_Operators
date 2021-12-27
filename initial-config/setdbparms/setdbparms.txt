@@ -1,1 +1,1 @@
-odbc::USERS2 db2admin passw0rd
+odbc::USERS2 kwh97189 gvxxu6CiVnclcc8X
