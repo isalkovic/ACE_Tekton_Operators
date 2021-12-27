@@ -9,7 +9,7 @@ DIRtruststore=${PathToConfigFolder}/truststore
 DIRpolicies=${PathToConfigFolder}/policies
 DIRserverconf=${PathToConfigFolder}/serverconf
 # the generic files are located in folder "extensions", because the same/ similar capability is expected in containerised version of ACE under name/folder extensions
-DIRgeneric=${PathToConfigFolder}/extensions
+DIRgenericFiles=${PathToConfigFolder}/extensions
 
 CRs_template_folder=/workspace/output/operator_resources_CRs
 CRs_generated_folder=/workspace/output/operator_resources_CRs/generated
@@ -60,22 +60,22 @@ else
 	echo "Directory ${DIRodbcini} not found. Skipping."
 fi
 
-# Create CR for generics (custom files to be transfered to IS container) , if folder exists and is not empty
-if [ -d "${DIRgeneric}" ]
+# Create CR for genericFiles (custom files to be transfered to IS container) , if folder exists and is not empty
+if [ -d "${DIRgenericFiles}" ]
 then
-	if [ "$(ls -A ${DIRgeneric})" ]; then
+	if [ "$(ls -A ${DIRgenericFiles})" ]; then
     echo "Generating GENERIC CR yaml"
-		zip -r - ${DIRgeneric}/* > ${PathToConfigFolder}/generic.zip -x '*.zip*'
-    policy=$(base64 -w 0 ${PathToConfigFolder}/generic.zip)
-    sed -e "s/replace-with-namespace/${DEPLOYMENT_NAMESPACE}/" -e "s~replace-with-generic-name~${BAR_NAME}-generic~" -e "s~replace-with-generic-base64~${generic}~" ${CRs_template_folder}/configuration_generic.yaml > ${CRs_generated_folder}/configurations/generic-generated.yaml
+		zip -r - ${DIRgenericFiles}/* > ${PathToConfigFolder}/generic.zip -x '*.zip*'
+    generic=$(base64 -w 0 ${PathToConfigFolder}/generic.zip)
+    sed -e "s/replace-with-namespace/${DEPLOYMENT_NAMESPACE}/" -e "s~replace-with-generic-name~${BAR_NAME}-generic~" -e "s~replace-with-generic-base64~${generic}~" -e "s~replace-with-generic-secret~${BAR_NAME}-generic~" ${CRs_template_folder}/configuration_generic.yaml > ${CRs_generated_folder}/configurations/generic-generated.yaml
     #add reference to this config cr to integration server cr
 		echo "Adding GENERIC configuration reference to integration server CR yaml"
     echo "    - ${BAR_NAME}-generic" >> ${CRs_generated_folder}/integrationServer-generated.yaml
 	else
-    echo "${DIRgeneric} is Empty. Skipping."
+    echo "${DIRgenericFiles} is Empty. Skipping."
 	fi
 else
-	echo "Directory ${DIRgeneric} not found. Skipping."
+	echo "Directory ${DIRgenericFiles} not found. Skipping."
 fi
 
 # Create CR for setdbparms if folder exists and is not empty
