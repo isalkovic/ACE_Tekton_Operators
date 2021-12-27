@@ -3,6 +3,7 @@
 PathToConfigFolder=/workspace/output/initial-config
 
 DIRbarauth=${PathToConfigFolder}/barauth
+DIRodbcini=${PathToConfigFolder}/odbcini
 DIRsetdbparms=${PathToConfigFolder}/setdbparms
 DIRtruststore=${PathToConfigFolder}/truststore
 DIRpolicies=${PathToConfigFolder}/policies
@@ -39,6 +40,23 @@ then
 	fi
 else
 	echo "Directory ${DIRbarauth} not found. Skipping."
+fi
+
+# Create CR for odbc.ini , if folder exists and is not empty
+if [ -d "${DIRodbcini}" ]
+then
+	if [ "$(ls -A ${DIRodbcini})" ]; then
+    echo "Generating odbcini CR yaml"
+    odbcini=$(base64 -w 0 ${DIRodbcini}/odbc.ini)
+    sed -e "s/replace-with-namespace/${DEPLOYMENT_NAMESPACE}/" -e "s~replace-with-odbcini-name~${BAR_NAME}-odbcini~" -e "s~replace-with-odbcini-base64~${odbcini}~" ${CRs_template_folder}/configuration_odbcini.yaml > ${CRs_generated_folder}/configurations/odbcini-generated.yaml
+    #add reference to this config cr to integration server cr
+		echo "Adding odbcini configuration reference to integration server CR yaml"
+    echo "    - ${BAR_NAME}-odbcini" >> ${CRs_generated_folder}/integrationServer-generated.yaml
+	else
+    echo "${DIRodbcini} is Empty. Skipping."
+	fi
+else
+	echo "Directory ${DIRodbcini} not found. Skipping."
 fi
 
 # Create CR for setdbparms if folder exists and is not empty
