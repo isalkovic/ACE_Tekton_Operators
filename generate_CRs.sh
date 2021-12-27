@@ -65,7 +65,7 @@ if [ -d "${DIRgenericFiles}" ]
 then
 	if [ "$(ls -A ${DIRgenericFiles})" ]; then
     echo "Generating GENERIC CR yaml"
-		zip -r - ${DIRgenericFiles}/* > ${PathToConfigFolder}/generic.zip -x '*.zip*'
+		zip -r -j - ${DIRgenericFiles}/* > ${PathToConfigFolder}/generic.zip -x '*.zip*'
     generic=$(base64 -w 0 ${PathToConfigFolder}/generic.zip)
     sed -e "s/replace-with-namespace/${DEPLOYMENT_NAMESPACE}/" -e "s~replace-with-generic-name~${BAR_NAME}-generic~" -e "s~replace-with-generic-base64~${generic}~" -e "s~replace-with-generic-secret~${BAR_NAME}-generic~" ${CRs_template_folder}/configuration_generic.yaml > ${CRs_generated_folder}/configurations/generic-generated.yaml
     #add reference to this config cr to integration server cr
