@@ -4,7 +4,7 @@
 This document describes detailed steps on how to set up an Openshift tekton pipeline and required environment, which will automatically build the ACE code into a BAR file, generate all the required configuration custom resources and apply them to Openshift, effectively deploying the ACE integration server and associated integration applications.
 
 ## Scenario details  
-These are all the steps of the scenario, some done manually (1.) , some by ACE Operator (8., 9.) and the rest by the tekton pipeline:  
+These are all the steps of the scenario, some done manually (1. and 2. ) , some by ACE Operator (8. and 9.) and the rest by the tekton pipeline:  
 1. Push ACE code and configuration from the ACE toolkit to the Git repository
 2. Start an Openshift pipelines (Tekton) pepeline
 3. Clone a Git repository containing ACE code and ACE configuration
@@ -34,24 +34,24 @@ The tekton pipeline used in this scenario consists of a "pipeline" definition, 5
   Some tasks are executed in parallel - ace-generate-crs task is executed at the same time as ace-build-bar and ace-nexus-upload tasks. The pipeline was configured in such a way, because parallelism was possible and to speed up the execution of the pipeline, but also to demonstrate this capability of tekton pipelines.
 
   The pipeline is parametrised, which makes it easy to quickly customise for any environment.
-  <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/pipeline_parameters.png?raw=true" width="300">  
+  <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/pipeline_parameters.png?raw=true" width="600">  
 
   Following is the description of all the parameters:
-
-    | Parameter name | Description |
-    | ---------------------------- | ----------------------------------------------------- |
-    | git-url	 | The git repository URL to clone from |
-    | git-revision	 | Revision to checkout. (branch, tag, sha, ref, etc...) |
-    | bar-name-without-extension	 | The name of the bar to be built, without the .bar extension |
-    | bar-version	 | The version of the bar to be built, without the .bar extension - will be appended to bar name |
-    | ace-toolkit-code-directory	 | The base directory of the repository, containing ACE projects |
-    | integration-server-name	 | The name of the integration server which will be deployed - will be used in Openshift deployment artefacts |
-    | deployment-namespace	 | The name of the Openshift namespace/project , where the integration server and configuration will be deployed |
-    | nexus-server-base-url	 | The Base URL of the Nexus server where the bar file will be uploaded |
-    | nexus-repository-name	 | The name of the Nexus repository, where the bar file will be uploaded |
-    | nexus-path	 | The path of the Nexus repository, where the bar file will be uploaded, for example - "org/dept" |
-    | nexus-upload-user-name	 | The Nexus user which will upload the bar file (default for Nexus is "admin") |
-    | nexus-upload-user-password	 | The Nexus user's password (default for Nexus is "admin123") |
+  
+  | Parameter name | Description |
+  | ---------------------------- | ----------------------------------------------------- |
+  | git-url	 | The git repository URL to clone from |
+  | git-revision	 | Revision to checkout. (branch, tag, sha, ref, etc...) |
+  | bar-name-without-extension	 | The name of the bar to be built, without the .bar extension |
+  | bar-version	 | The version of the bar to be built, without the .bar extension - will be appended to bar name |
+  | ace-toolkit-code-directory	 | The base directory of the repository, containing ACE projects |
+  | integration-server-name	 | The name of the integration server which will be deployed - will be used in Openshift deployment artefacts |
+  | deployment-namespace	 | The name of the Openshift namespace/project , where the integration server and configuration will be deployed |
+  | nexus-server-base-url	 | The Base URL of the Nexus server where the bar file will be uploaded |
+  | nexus-repository-name	 | The name of the Nexus repository, where the bar file will be uploaded |
+  | nexus-path	 | The path of the Nexus repository, where the bar file will be uploaded, for example - "org/dept" |
+  | nexus-upload-user-name	 | The Nexus user which will upload the bar file (default for Nexus is "admin") |
+  | nexus-upload-user-password	 | The Nexus user's password (default for Nexus is "admin123") |
 
 
   Each definition (pipeline, pipelinerun, task) of the pipeline is stored in a separate YAML file and can be found in the /pipeline folder of the project.

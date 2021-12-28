@@ -21,7 +21,7 @@ spec:
       default: '69'
       type: string
     - name: ace-toolkit-code-directory
-      description: The base directory containing ACE projects
+      description: The base directory of the repository, containing ACE projects
       default: ace-toolkit-code
       type: string
     - name: integration-server-name
