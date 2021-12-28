@@ -5,39 +5,51 @@ metadata:
 spec:
   params:
     - name: git-url
+      description: The git repository URL to clone from
       default: 'https://github.com/isalkovic/ACE_Tekton_Operators.git'
       type: string
     - name: git-revision
+      description: Revision to checkout. (branch, tag, sha, ref, etc...)
       default: main
       type: string
     - name: bar-name-without-extension
+      description: The name of the bar to be built, without the .bar extension
       default: mybarname
       type: string
     - name: bar-version
+      description: The version of the bar to be built, without the .bar extension - will be appended to bar name
       default: '69'
       type: string
     - name: ace-toolkit-code-directory
+      description: The base directory containing ACE projects
       default: ace-toolkit-code
       type: string
     - name: integration-server-name
+      description: The name of the integration server which will be deployed - will be used in Openshift deployment artefacts
       default: acedemnotekton
       type: string
     - name: deployment-namespace
+      description: The name of the Openshift namespace/project , where the integration server and configuration will be deployed
       default: ace-demo-tekton
       type: string
     - name: nexus-server-base-url
+      description: The Base URL of the Nexus server where the bar file will be uploaded
       default: http://nexus-route-ace-demo-tekton.apps.ocp12.tec.cz.ibm.com
       type: string
     - name: nexus-repository-name
+      description: The name of the Nexus repository, where the bar file will be uploaded
       default: ace-demo-tekton
       type: string
     - name: nexus-path
+      description: The path of the Nexus repository, where the bar file will be uploaded, for example - "org/dept"
       default: org/test
       type: string
     - name: nexus-upload-user-name
+      description: The Nexus user which will upload the bar file (default for Nexus is "admin")
       default: admin
       type: string
     - name: nexus-upload-user-password
+      description: The Nexus user's password (default for Nexus is "admin123")
       default: admin123
       type: string
   tasks:

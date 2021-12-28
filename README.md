@@ -1,13 +1,16 @@
-# IBM App Connect Enterprise - Build and deploy using Git, Nexus, Tekton and ACE Operator
+# IBM App Connect Enterprise - Build and deploy ACE applications using Git, Nexus, Tekton and ACE Operator
 
 ## Purpose of the document
-This document describes detailed steps on how to set up an Openshift tekton pipeline and required environment, which will:
+This document describes detailed steps on how to set up an Openshift tekton pipeline and required environment, which will automatically build the ACE code into a BAR file, generate all the required configuration custom resources and apply them to Openshift, effectively deploying the ACE integration server and associated integration applications.
+
+## Scenario details  
+These are all the steps of the scenario, some done manually (1.) , some by ACE Operator (8., 9.) and the rest by the tekton pipeline:  
 1. Push ACE code and configuration from the ACE toolkit to the Git repository
 2. Start an Openshift pipelines (Tekton) pepeline
 3. Clone a Git repository containing ACE code and ACE configuration
 4. Build the ACE code to a BAR file
 5. Upload the BAR file to a Nexus repository
-6. Generate Custom Resources YAML files for ACE confguration and ACE integration server, which are used by the ACE Operator in the next steps
+6. Generate Custom Resources YAML files for ACE configuration and ACE integration server, which are used by the ACE Operator in the next steps
 7. Apply Custom Resource files to the Openshift cluster
 8. ACE Operator picks up the ACE configuration CRs and creates appropriate configuration and related Openshift resources (secrets, config maps,...)
 9. ACE Operator picks up the ACE integration server CR and creates ACE server and related Openshift resources (deployment, service, routes,...)
@@ -17,10 +20,41 @@ This document describes detailed steps on how to set up an Openshift tekton pipe
 This document is a (functional) work in progress and will be improved along with the code which is located here: https://github.com/isalkovic/ACE_Tekton_Operators
 
 Ideas for improvement:
+- add webhook from github (currently starting pipeline manually for better control)
 - support more configuration types
+- take the version parameter from some property in the code/configuration/git , not from the pipeline parameter
 - differentiate new deployment from update
 - add option to deploy from custom image build (vs standard Operator deployment with BAR+ standard ACE image)
 
+## Tekton pipeline details
+The tekton pipeline used in this scenario consists of a "pipeline" definition, 5 "tasks" and a "pipeline run". On the image below you can see the order in which steps are executed.  
+
+<img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/pipeline_visual.png?raw=true" width="600">
+
+  Some tasks are executed in parallel - ace-generate-crs task is executed at the same time as ace-build-bar and ace-nexus-upload tasks. The pipeline was configured in such a way, because parallelism was possible and to speed up the execution of the pipeline, but also to demonstrate this capability of tekton pipelines.
+
+  The pipeline is parametrised, which makes it easy to quickly customise for any environment.
+  <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/pipeline_parameters.png?raw=true" width="300">  
+
+  Following is the description of all the parameters:
+
+    | Parameter name | Description |
+    | ---------------------------- | ----------------------------------------------------- |
+    | git-url	 | The git repository URL to clone from |
+    | git-revision	 | Revision to checkout. (branch, tag, sha, ref, etc...) |
+    | bar-name-without-extension	 | The name of the bar to be built, without the .bar extension |
+    | bar-version	 | The version of the bar to be built, without the .bar extension - will be appended to bar name |
+    | ace-toolkit-code-directory	 | The base directory of the repository, containing ACE projects |
+    | integration-server-name	 | The name of the integration server which will be deployed - will be used in Openshift deployment artefacts |
+    | deployment-namespace	 | The name of the Openshift namespace/project , where the integration server and configuration will be deployed |
+    | nexus-server-base-url	 | The Base URL of the Nexus server where the bar file will be uploaded |
+    | nexus-repository-name	 | The name of the Nexus repository, where the bar file will be uploaded |
+    | nexus-path	 | The path of the Nexus repository, where the bar file will be uploaded, for example - "org/dept" |
+    | nexus-upload-user-name	 | The Nexus user which will upload the bar file (default for Nexus is "admin") |
+    | nexus-upload-user-password	 | The Nexus user's password (default for Nexus is "admin123") |
+
+
+  Each definition (pipeline, pipelinerun, task) of the pipeline is stored in a separate YAML file and can be found in the /pipeline folder of the project.
 
 ## Steps to configure the environment
 
