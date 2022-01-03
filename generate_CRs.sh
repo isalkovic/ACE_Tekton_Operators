@@ -100,7 +100,7 @@ if [ -d "${DIRtruststore}" ]
 then
 	if [ "$(ls -A ${DIRtruststore})" ]; then
     echo "Generating truststore CR yaml"
-    truststore=$(base64 -w 0 server-config/initial-config/truststore/es-cert.p12)
+    truststore=$(base64 -w 0 server-config/initial-config/truststore/cert.p12)
     sed -e "s/replace-with-namespace/${DEPLOYMENT_NAMESPACE}/" -e "s~replace-with-truststore-name~${BAR_NAME}-truststore~" -e "s~replace-with-truststore-base64~${truststore}~" ${CRs_template_folder}/configuration_truststore.yaml > ${CRs_generated_folder}/configurations/truststore-generated.yaml
     #add reference to this config cr to integration server cr
 		echo "Adding truststore configuration reference to integration server CR yaml"

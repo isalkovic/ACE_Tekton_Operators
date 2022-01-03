@@ -4,12 +4,14 @@
 1. [Purpose of the document](#purpose-of-the-document)
 2. [Scenario details](#scenario-details)
 3. [Tekton pipeline details](#tekton-pipeline-details)
-4. [Steps to configure the environment - SHORT](#steps-to-configure-the-environment---short)
-5. [Test your work - start the pipeline](#test-your-work---start-the-pipeline)
-6. [Appendix - detailed instructions and references](#appendix---detailed-instructions-and-references)
-7. [Steps to configure the environment - VERY DETAILED](#steps-to-configure-the-environment---very-detailed)
-8. [Useful links](#useful-links)
-9. [Notes and observations](#notes-and-observations)
+4. [ACE applications details](#ace-applications-details)
+5. [ACE configuration details](#ace-configuration-details)
+6. [Steps to configure the environment - SHORT](#steps-to-configure-the-environment---short)
+7. [Test your work - start the pipeline](#test-your-work---start-the-pipeline)
+8. [Appendix - detailed instructions and references](#appendix---detailed-instructions-and-references)
+9. [Steps to configure the environment - VERY DETAILED](#steps-to-configure-the-environment---very-detailed)
+10. [Useful links](#useful-links)
+11. [Notes and observations](#notes-and-observations)
 
 
 ---  
@@ -89,6 +91,37 @@ On the image below you can see the order in which steps are executed.
 
 
   Each definition (pipeline, pipelinerun, task) of the pipeline is stored in a separate **YAML file** and can be found in the */pipeline* folder of the project. The names of the files are pretty self-explanatory.
+---
+## ACE applications details
+
+For the purpose of this scenario, we will be using two applications, which are available as ACE toolkit code and can be found in the *ace-toolkit-code* folder of the project. These are:
+- **ExampleServer** - *simple HTTP application which returns a JSON response, useful to quickly verify that our app is up and running*
+- **ExampleDatabaseCompute** - *simple HTTP application which inserts a new entry into a database*
+More information on these applications can be found [in the documentation](https://www.ibm.com/docs/en/app-connect/12.0?topic=enterprise-toolkit-tutorials-github) or through the ACE Toolkit, in the *Tutorials gallery*.
+These applications were chosen because they are simple and yet we can use them to demonstrate integration with external database using ODBC, as well as the configuration elements which are required to accomplish this. Also, **two** applications were chosen in order to demonstrate how to handle the situation where more than one application is deployed (and configured) per Integration server / container.
+If we want the applications to function properly after deploy, no changes are required to the **ExampleServer** application, but the **ExampleDatabaseCompute** application may require some changes, probably for the *DBSchema* parameter in the ESQL, if your database can not be set with the same schema (db2admin) as in this scenario. More details on this set-up can be found in the step-by-step instructions later in this document.
+
+  It is easy to insert your own applications into this scenario, instead of the ones which come by default - simply delete the folders with existing application code and add the folders containing your applications. Just make sure you modify the configuration appropriately, if needed. :wink:
+
+---
+## ACE configuration details
+
+Configuration parameters set-up was one of the key steps, when building this scenario. The configuration typically follows the application code and varies depending on the application, but it can also be generic and specific to integration server runtime. Operator-based deployment and configuration of the ACE runtime requires that the configuration is provided in a specific format and in a specific way (unless you are baking your configuration in the container image).  
+ACE Operator supports the *Configuration* **Custom resource** and expects the configuration files/information to be *base64* encoded and passed as *spec.data* in the Custom resource. There are many "Configuration types" which are supported and a list of them, along with more details, can be found [in the ACE documentation](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=servers-configuration-types-integration).
+At the time of preparing this document, the documentation was not detailed enough, at least for my taste.  
+Different configuration types have different rules on how to generate them, so some caution is required here. For example, **server.conf.yaml** type requires the server.conf.yaml file to be directly base64 encoded, while the **Generic files** and **Policy project** types require the files to be first compressed and then encoded to base64. However, one needs to be careful even here, because while **Generic files** type must be compressed without any directory structure, this is not the case with **Policy project** - where a folder with the policy project name is expected to be compressed along with the policy files. Another requirement is for these compressed files to be in the .zip format, which is not the first compression option in the Linux world, so it could require some additional preparation. For the purpose of this scenario, this logic has been implemented in the **generate_CRs.sh** script in the project root. The script takes care of all the configuration packaging details, and uses template files (which can be found in the *operator_resources_CRs* folder of the project) to create the **Custom resource** YAMLs expected by the ACE Operator. Now, all that is needed to configure our server is to create/copy appropriate configuration files in the *initial-config* folder of the project. Here, please mind the placement of configuration files in the appropriate subfolders.
+At the moment, the following **Configuration types** are supported by the script, as part of this scenario:
+- [BarAuth](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_barauth.html)
+- [Generic files](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_genericfiles.html)
+- [odbc.ini](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_odbcini.html)
+- [Policy project](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_policyproject.html)
+- [server.conf.yaml](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_serverconfyaml.html)
+- [setdbparms.txt](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_setdbparmstxt.html)
+- [Truststore certificate](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_truststorecertificate.html)
+
+  After the **Configuration** *Custom resource** yaml has been generated, this Configuration object needs to be referenced by the **Integration server** *Custom resource*. The script does this automatically for each configuration it generates, by listing the configuration **name** in the *spec.configuration* part of the **Integration server** *Custom resource*.
+
+Similar like with the applications, it is easy to insert your own configuration into this scenario, instead of the provided configuration - simply edit the existing configuration files or add new ones. In case you need to add a configuration type which is not supported by the scenario, you will also need to edit the **generate_CRs.sh** script and create an appropriate template in the *operator_resources_CRs* folder of the project. :wink:
 
 ---
 ## Steps to configure the environment - SHORT
@@ -137,7 +170,7 @@ Using the Dockerfile.aceminimalubuntu dockerfile, build a new image and tag it f
 docker push $IMAGEREPOSITORY/$PROJECT/ace-with-zip:latest  
 ```
 
-11. After you have cloned the repository, navigate to the “pipeline” directory of this repository. You will need to **do some modifications to pipeline elements definitions**, in order for the pipeline to run successfully on your cluster. At minimal, do the following modifications:
+11. Next, navigate to the “pipeline” directory of this repository. You will need to **do some modifications to pipeline elements definitions**, in order for the pipeline to run successfully on your cluster. At minimal, do the following modifications:
 
 | File name | Changes to be made |
 | ----------------------------- | ----------- |
@@ -157,6 +190,15 @@ oc apply -f pipelineElementName.yaml
 ```
 where you change the name of the YAML file, for each of the files in the pipeline directory.  
 
+13. As the last step, before testing your pipeline, we need to **configure a db2 database**, so that our **ExampleDatabaseCompute** ACE application can connect to it and insert data into it. This step is not mandatory and your app and server will still run, even if you do not configure a database (but returning error messages :wink: ). If you already have a db2 database in your cluster, feel free to use it (wherever it is, just make sure there is network connectivity). As you probably do not have such an instance lying around, I suggest you create an instance of *IBM Db2 on Cloud*, [here](https://cloud.ibm.com/catalog/services/db2). It takes only minutes to set-up. Whichever database you choose, you will need to create a new database and a new table:  
+```
+db2 create database USERS2
+CONNECT TO USERS2
+CREATE TABLE DB2ADMIN.EMPLOYEES (PKEY INTEGER NOT NULL, FIRSTNAME VARCHAR(30), LASTNAME VARCHAR(30), COUNTRY VARCHAR(2), PRIMARY KEY(PKEY))
+```  
+After creating the database, you will need to update the configuration and application files to match the parameters of your database instance.
+List of files which may require editing (depending on your database set-up):
+-  */ace-toolkit-code/ExampleDatabaseCompute/DatabaseCompute_Compute.esql*, */extensions/db2cli.ini* , */odbcini/odbc.ini* and */setdbparms/setdbparms.txt* .
 
 ## Test your work - start the pipeline
 Finally you have set-up your environment and we can start running some ACE pipelines, and hopefully even containers. To start your first pipeline, in the Openshift console go to Pipelines->Pipelines->PipelineRuns and click on the three dots next to your ace-build-and-deploy-pipeline-run pipeline run.  
@@ -290,7 +332,7 @@ podman tag ace-with-zip $IMAGEREPOSITORY/$PROJECT/ace-with-zip:latest
 podman push --tls-verify=false $IMAGEREPOSITORY/$PROJECT/ace-with-zip:latest 
 ```  
 
-11. After you have cloned the repository, navigate to the “pipeline” directory of this repository. You will need to **do some modifications to pipeline elements definitions**, in order for the pipeline to run successfully on your cluster. At minimal, do the following modifications:
+11. Next, navigate to the “pipeline” directory of this repository. You will need to **do some modifications to pipeline elements definitions**, in order for the pipeline to run successfully on your cluster. At minimal, do the following modifications:
 
 | File name | Changes to be made |
 | ----------------------------- | ----------- |
@@ -315,6 +357,16 @@ where you change the name of the YAML file, for each of the files in the pipelin
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/ocimportyaml.png?raw=true" width="300">
 
 Click “Create” button to apply the pipeline element.  Do this for all the files in the pipeline directory.
+
+13. As the last step, before testing your pipeline, we need to **configure a db2 database**, so that our **ExampleDatabaseCompute** ACE application can connect to it and insert data into it. This step is not mandatory and your app and server will still run, even if you do not configure a database (but returning error messages :wink: ). If you already have a db2 database in your cluster, feel free to use it (wherever it is, just make sure there is network connectivity). As you probably do not have such an instance lying around, I suggest you create an instance of *IBM Db2 on Cloud*, [here](https://cloud.ibm.com/catalog/services/db2). It takes only minutes to set-up. Whichever database you choose, you will need to create a new database and a new table:  
+```
+db2 create database USERS2
+CONNECT TO USERS2
+CREATE TABLE DB2ADMIN.EMPLOYEES (PKEY INTEGER NOT NULL, FIRSTNAME VARCHAR(30), LASTNAME VARCHAR(30), COUNTRY VARCHAR(2), PRIMARY KEY(PKEY))
+```  
+After creating the database, you will need to update the configuration and application files to match the parameters of your database instance.
+List of files which may require editing (depending on your database set-up):
+-  */ace-toolkit-code/ExampleDatabaseCompute/DatabaseCompute_Compute.esql*, */extensions/db2cli.ini* , */odbcini/odbc.ini* and */setdbparms/setdbparms.txt* .
 
 
 ## Useful links
