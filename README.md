@@ -120,7 +120,7 @@ At the moment, the following **Configuration types** are supported by the script
 - [setdbparms.txt](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_setdbparmstxt.html)
 - [Truststore certificate](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_truststorecertificate.html)
 
-After the **Configuration** *Custom resource** yaml has been generated, this Configuration object needs to be referenced by the **Integration server** *Custom resource*. The script does this automatically for each configuration it generates, by listing the configuration **name** in the *spec.configuration* part of the **Integration server** *Custom resource*.
+After the **Configuration** *Custom resource* yaml has been generated, this Configuration object needs to be referenced by the **Integration server** *Custom resource*. The script does this automatically for each configuration it generates, by listing the configuration **name** in the *spec.configuration* part of the **Integration server** *Custom resource*.
 
 Similar like with the applications, it is easy to insert your own configuration into this scenario, instead of the provided configuration - simply edit the existing configuration files or add new ones. In case you need to add a configuration type which is not supported by the scenario, you will also need to edit the **generate_CRs.sh** script and create an appropriate template in the *operator_resources_CRs* folder of the project. :wink:
 
@@ -204,6 +204,7 @@ List of files which may require editing (depending on your database set-up):
 - */odbcini/odbc.ini*
 - */setdbparms/setdbparms.txt*
 
+---
 ## Test your work - start the pipeline
 Finally you have set-up your environment and we can start running some ACE pipelines, and hopefully even containers. To start your first pipeline, in the Openshift console go to Pipelines->Pipelines->PipelineRuns and click on the three dots next to your ace-build-and-deploy-pipeline-run pipeline run.  
 
@@ -232,6 +233,7 @@ Congratulations!! You have successfully deployed your App Connec Enterprise appl
 
 # Appendix - detailed instructions and references
 
+---
 ## Steps to configure the environment - VERY DETAILED
 Here you can find very detailed instructions for each step of this scenario.
 
@@ -375,7 +377,7 @@ List of files which may require editing (depending on your database set-up):
 - */odbcini/odbc.ini*
 - */setdbparms/setdbparms.txt*
 
-
+---
 ## Useful links
 
 [ACE CD documentation (operator usage)](https://www.ibm.com/docs/en/app-connect/containers_cd)
@@ -388,7 +390,7 @@ List of files which may require editing (depending on your database set-up):
 
 [Tekton documentation](https://tekton.dev/docs/)
 
-
+---
 ## Notes and observations
 
 - when running ACE in container, some ENV variables are set on the process level - check their values using this command: cat /proc/{IntegrationServer PID}/environ  | tr '\0' '\n' | sort
