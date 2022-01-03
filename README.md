@@ -100,7 +100,7 @@ For the purpose of this scenario, we will be using two applications, which are a
 
 More information on these applications can be found [in the documentation](https://www.ibm.com/docs/en/app-connect/12.0?topic=enterprise-toolkit-tutorials-github) or through the ACE Toolkit, in the *Tutorials gallery*.
 These applications were chosen because they are simple and yet we can use them to demonstrate integration with external database using ODBC, as well as the configuration elements which are required to accomplish this. Also, **two** applications were chosen in order to demonstrate how to handle the situation where more than one application is deployed (and configured) per Integration server / container.
-If we want the applications to function properly after deploy, no changes are required to the **ExampleServer** application, but the **ExampleDatabaseCompute** application may require some changes, probably for the *DBSchema* parameter in the ESQL, if your database can not be set with the same schema (db2admin) as in this scenario. More details on this set-up can be found in the step-by-step instructions later in this document.
+If you want the applications to function properly after deploy to your environment, no changes are required to the **ExampleServer** application, but the **ExampleDatabaseCompute** application will require some changes, probably for the *DBSchema* parameter in the ESQL, if your database can not be set with the same schema (db2admin) as in this scenario. More details on this set-up can be found in the step-by-step instructions later in this document.
 
 It is easy to insert your own applications into this scenario, instead of the ones which come by default - simply delete the folders with existing application code and add the folders containing your applications. Just make sure you modify the configuration appropriately, if needed. :wink:
 
@@ -222,7 +222,7 @@ If the ACE application is started and listening to requests, you should see the 
 
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/testaceapp.png?raw=true" width="800">
 
-==Congratulations!! You have successfully deployed your App Connec Enterprise application using these instructions :joy:==
+Congratulations!! You have successfully deployed your App Connec Enterprise application using these instructions!
 
 ---
 ---
