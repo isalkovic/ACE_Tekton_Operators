@@ -89,19 +89,20 @@ On the image below you can see the order in which steps are executed.
   | nexus-upload-user-name	 | The Nexus user which will upload the bar file (default for Nexus is "admin") |
   | nexus-upload-user-password	 | The Nexus user's password (default for Nexus is "admin123") |
 
-
   Each definition (pipeline, pipelinerun, task) of the pipeline is stored in a separate **YAML file** and can be found in the */pipeline* folder of the project. The names of the files are pretty self-explanatory.
+
 ---
 ## ACE applications details
 
 For the purpose of this scenario, we will be using two applications, which are available as ACE toolkit code and can be found in the *ace-toolkit-code* folder of the project. These are:
 - **ExampleServer** - *simple HTTP application which returns a JSON response, useful to quickly verify that our app is up and running*
-- **ExampleDatabaseCompute** - *simple HTTP application which inserts a new entry into a database*
+- **ExampleDatabaseCompute** - *simple HTTP application which inserts a new entry into a database*  
+
 More information on these applications can be found [in the documentation](https://www.ibm.com/docs/en/app-connect/12.0?topic=enterprise-toolkit-tutorials-github) or through the ACE Toolkit, in the *Tutorials gallery*.
 These applications were chosen because they are simple and yet we can use them to demonstrate integration with external database using ODBC, as well as the configuration elements which are required to accomplish this. Also, **two** applications were chosen in order to demonstrate how to handle the situation where more than one application is deployed (and configured) per Integration server / container.
 If we want the applications to function properly after deploy, no changes are required to the **ExampleServer** application, but the **ExampleDatabaseCompute** application may require some changes, probably for the *DBSchema* parameter in the ESQL, if your database can not be set with the same schema (db2admin) as in this scenario. More details on this set-up can be found in the step-by-step instructions later in this document.
 
-  It is easy to insert your own applications into this scenario, instead of the ones which come by default - simply delete the folders with existing application code and add the folders containing your applications. Just make sure you modify the configuration appropriately, if needed. :wink:
+It is easy to insert your own applications into this scenario, instead of the ones which come by default - simply delete the folders with existing application code and add the folders containing your applications. Just make sure you modify the configuration appropriately, if needed. :wink:
 
 ---
 ## ACE configuration details
@@ -119,7 +120,7 @@ At the moment, the following **Configuration types** are supported by the script
 - [setdbparms.txt](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_setdbparmstxt.html)
 - [Truststore certificate](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_truststorecertificate.html)
 
-  After the **Configuration** *Custom resource** yaml has been generated, this Configuration object needs to be referenced by the **Integration server** *Custom resource*. The script does this automatically for each configuration it generates, by listing the configuration **name** in the *spec.configuration* part of the **Integration server** *Custom resource*.
+After the **Configuration** *Custom resource** yaml has been generated, this Configuration object needs to be referenced by the **Integration server** *Custom resource*. The script does this automatically for each configuration it generates, by listing the configuration **name** in the *spec.configuration* part of the **Integration server** *Custom resource*.
 
 Similar like with the applications, it is easy to insert your own configuration into this scenario, instead of the provided configuration - simply edit the existing configuration files or add new ones. In case you need to add a configuration type which is not supported by the scenario, you will also need to edit the **generate_CRs.sh** script and create an appropriate template in the *operator_resources_CRs* folder of the project. :wink:
 
