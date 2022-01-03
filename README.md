@@ -1,4 +1,4 @@
-# IBM App Connect Enterprise - Build and deploy ACE applications for dummies, using Git, Nexus, Tekton and ACE Operator
+# IBM App Connect Enterprise - Build and deploy ACE applications for dummies - using Git, Nexus, Tekton and ACE Operator
 
 ## Purpose of the document
 This document describes detailed steps on how to set up an Openshift tekton pipeline and required environment, which will automatically build the ACE code into a BAR file, generate all the required configuration custom resources and apply them to Openshift, effectively deploying the ACE integration server and associated integration applications.
@@ -30,23 +30,30 @@ Ideas for improvement:
 ## Tekton pipeline details
 The tekton pipeline used in this scenario consists of a **"pipeline"** definition, 5 **"tasks"** and a **"pipeline run"**.  
 **Pipeline** "ace-build-and-deploy-pipeline" contains the definitions of parameters, references to tasks and their execution order and information about the workspace which the tasks will share.  
+
 **Pipeline run** "ace-build-and-deploy-pipeline-run" specifies the persistent volume claim which will be used to mount the tasks workspace on. PVC is required by the pipeline, since this pipeline needs to exchange data between different pipeline Tasks - i.e. after you clone the repository and it’s files, they are later used in another Task to build the .bar file). To do this, we need persistent storage, since each pipeline Task runs as a separate container instance and as such is ephemeral.  
+
 **Tasks** are the implementation of pipeline steps. They contain parameter definitions for the specific task, a set of commands which will perform the required functionality and a reference to the container image which will be used to execute these commands. Below is a list of tasks which are used by this pipeline:
 - ace-git-clone
 - ace-build-bar
 - ace-nexus-upload-bar
 - ace-generate-crs
-- ace-deploy-crs
+- ace-deploy-crs  
+
 
 On the image below you can see the order in which steps are executed.  
 
-<img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/pipeline_visual.png?raw=true" width="600">
 
-  Some tasks are executed in parallel - ace-generate-crs task is executed at the same time as ace-build-bar and ace-nexus-upload tasks. The pipeline was configured in such a way, because parallelism was possible and to speed up the execution of the pipeline, but also to demonstrate this capability of tekton pipelines.
+<img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/pipeline_visual.png?raw=true" width="600">  
+
+
+  Some tasks are executed in parallel - *ace-generate-crs* task is executed at the same time as *ace-build-bar* and *ace-nexus-upload tasks*. The pipeline was configured in such a way, because parallelism was possible and to speed up the execution of the pipeline, but also to demonstrate this capability of tekton pipelines.
 
   The pipeline is parametrised, and default values are set (some to reuse, some to use as example), which makes it easy to quickly customise the pipeline for any environment.  
 
+
   <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/pipeline_parameters.png?raw=true" width="600">  
+
 
   Following is the description of all the **parameters**:
 
@@ -66,17 +73,18 @@ On the image below you can see the order in which steps are executed.
   | nexus-upload-user-password	 | The Nexus user's password (default for Nexus is "admin123") |
 
 
-  Each definition (pipeline, pipelinerun, task) of the pipeline is stored in a separate **YAML file** and can be found in the '/pipeline' folder of the project. The names of the files are pretty self-explanatory.
+  Each definition (pipeline, pipelinerun, task) of the pipeline is stored in a separate **YAML file** and can be found in the */pipeline* folder of the project. The names of the files are pretty self-explanatory.
 
+---
 ## Steps to configure the environment - SHORT
 
-The following steps will include only short instructions (for readability reasons) on what to do - for advanced users. Very detailed instructions for each step can be found in the appendix of this document.
+The following steps will include only short instructions (for readability reasons) on what to do - for advanced users. Very detailed instructions for each step can be found in the [appendix](https://github.com/isalkovic/ACE_Tekton_Operators#steps-to-configure-the-environment---very-detailed) of this document.
 
 1. In Openshift, **create a new project** with the name of your choice. In further instructions, we will reference it as $PROJECT . When performing further steps, always make sure you are in your $PROJECT, either in the Openshift console or in the command line.
 
 2. Install the **Openshift Pipelines Operator**.  
 
-3. Installing the **Nexus Repository Operator**.
+3. Install the **Nexus Repository Operator**.
 
 4. Using the Nexus operator, create a **new instance of Nexus repository** (default settings are enough, choose name which you like).
 
