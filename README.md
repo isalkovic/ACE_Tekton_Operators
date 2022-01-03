@@ -199,7 +199,10 @@ CREATE TABLE DB2ADMIN.EMPLOYEES (PKEY INTEGER NOT NULL, FIRSTNAME VARCHAR(30), L
 ```  
 After creating the database, you will need to update the configuration and application files to match the parameters of your database instance.
 List of files which may require editing (depending on your database set-up):
--  */ace-toolkit-code/ExampleDatabaseCompute/DatabaseCompute_Compute.esql*, */extensions/db2cli.ini* , */odbcini/odbc.ini* and */setdbparms/setdbparms.txt* .
+- */ace-toolkit-code/ExampleDatabaseCompute/DatabaseCompute_Compute.esql*
+- */extensions/db2cli.ini*
+- */odbcini/odbc.ini*
+- */setdbparms/setdbparms.txt*
 
 ## Test your work - start the pipeline
 Finally you have set-up your environment and we can start running some ACE pipelines, and hopefully even containers. To start your first pipeline, in the Openshift console go to Pipelines->Pipelines->PipelineRuns and click on the three dots next to your ace-build-and-deploy-pipeline-run pipeline run.  
