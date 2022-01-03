@@ -1,5 +1,20 @@
 # IBM App Connect Enterprise - Build and deploy ACE applications for dummies - using Git, Nexus, Tekton and ACE Operator
 
+# Table of Contents
+1. [Purpose of the document](#purpose-of-the-document)
+2. [Scenario details](#scenario-details)
+3. [Tekton pipeline details](#tekton-pipeline-details)
+4. [Steps to configure the environment - SHORT](#steps-to-configure-the-environment---short)
+5. [Test your work - start the pipeline](#test-your-work---start-the-pipeline)
+6. [Appendix - detailed instructions and references](#appendix---detailed-instructions-and-references)
+7. [Steps to configure the environment - VERY DETAILED](#steps-to-configure-the-environment---very-detailed)
+8. [Useful links](#useful-links)
+9. [Notes and observations](#notes-and-observations)
+
+
+---  
+
+
 ## Purpose of the document
 This document describes detailed steps on how to set up an Openshift tekton pipeline and required environment, which will automatically build the ACE code into a BAR file, generate all the required configuration custom resources and apply them to Openshift, effectively deploying the ACE integration server and associated integration applications.
 
@@ -78,7 +93,7 @@ On the image below you can see the order in which steps are executed.
 ---
 ## Steps to configure the environment - SHORT
 
-The following steps will include only short instructions (for readability reasons) on what to do - for advanced users. Very detailed instructions for each step can be found in the [appendix](https://github.com/isalkovic/ACE_Tekton_Operators#steps-to-configure-the-environment---very-detailed) of this document.
+The following steps will include only short instructions (for readability reasons) on what to do - for advanced users. Very detailed instructions for each step can be found in the [appendix](#steps-to-configure-the-environment---very-detailed) of this document.
 
 1. In Openshift, **create a new project** with the name of your choice. In further instructions, we will reference it as $PROJECT . When performing further steps, always make sure you are in your $PROJECT, either in the Openshift console or in the command line.
 
@@ -164,7 +179,7 @@ If the ACE application is started and listening to requests, you should see the 
 
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/testaceapp.png?raw=true" width="800">
 
-## Congratulations!! You have successfully deployed your App Connec Enterprise application using these instructions :-)
+==Congratulations!! You have successfully deployed your App Connec Enterprise application using these instructions :joy==
 
 ---
 ---
@@ -300,3 +315,71 @@ where you change the name of the YAML file, for each of the files in the pipelin
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/ocimportyaml.png?raw=true" width="300">
 
 Click “Create” button to apply the pipeline element.  Do this for all the files in the pipeline directory.
+
+
+## Useful links
+
+[ACE CD documentation (operator usage)](https://www.ibm.com/docs/en/app-connect/containers_cd)
+
+[ACE in containers (local)](https://github.com/ot4i/ace-docker)
+
+[Connecting integration servers to Db2 in IBM App Connect Enterprise certified containers](https://community.ibm.com/community/user/integration/blogs/rob-convery1/2021/03/06/integrationserver-to-db2-in-acecc)
+
+[Obtaining the IBM App Connect Enterprise server image from the IBM Cloud Container Registry](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=obtaining-app-connect-enterprise-server-image-from-cloud-container-registry)
+
+[Tekton documentation](https://tekton.dev/docs/)
+
+
+## Notes and observations
+
+- when running ACE in container, some ENV variables are set on the process level - check their values using this command: cat /proc/{IntegrationServer PID}/environ  | tr '\0' '\n' | sort
+
+- to set-up ACE in containers to connect to DB2 database, only the following is required:  
+  1. put a configured db2cli.ini in the extensions folder (will be transformed to genericFiles configuration CR and stored in container at /home/aceuser/generic )
+  2. put a configured odbc.ini file to the odbcini folder (will be transformed to odbc configuration CR and stored in container at /home/aceuser/ace-server )
+  3. set DB2CLIINIPATH variable somehow ( I did through server.conf env: which seems the simplest solution, but other options could be integrationserver CR or EnvironmentVariables part of server.conf - last one since ACE 12.0.3)
+
+- most of the time, ibm-entitlement-key needs to be set in OCP project, so that the ACE images can be pulled from IBM registry. To do this, run the following command:  
+```
+oc create secret docker-registry ibm-entitlement-key \
+  --docker-username=cp \
+  --docker-password=eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJJQk0gTWFya2V0cGxhY2UiLCJpYXQiOjE1NzQ4NjQ5NDYsImp0aSI6ImE1NjJiOGNkZmEzYTQ5MDdiY2NlYzZkYmZjYjNkMTU1In0.idu09iplr_efhamtjM0KvQvHkX_fjfNJWFOAnLvQWRc \
+  --docker-server=cp.icr.io \
+  --namespace=ace
+```  
+
+
+- As of ACE 12.0.3, we can now use server.conf.yaml stanzas such as
+```  
+StartupScripts:
+  FirstScript:
+    command: 't:\tmp\user-script-work-dir\startup-script.cmd'
+    readVariablesFromOutput: 'auto'
+    includeCommandOutputInLogs: true
+  SecondScript:
+    command: '/gsa/hurgsa/home/t/d/tdolby/tmp/user-script-work-dir/startup-script-blank.sh'
+    readVariablesFromOutput: 'auto'
+    includeCommandOutputInLogs: 'true'
+
+EnvironmentVariables:
+  ENV_VAR_ONE: 'env_var_one_value'
+  ENV_VAR_TWO: 'env_var_two_value'
+```  
+
+and there's also support for loading credentials from a script to pull secrets in from HashiCorp or Azure or similar.
+
+- There are two user variables that can be set in server.conf.yaml (only two right now!) that will set environment variables in the parent:
+```  
+UserVariables:
+  env-var-name: 'DB2DSDRIVER_CFG_PATH'
+  env-var-value: '/gsa/hurgsa/home/t/d/tdolby/tmp/db2-ssl-work-dir/db2dsdriver.cfg'
+  env-var2-name: 'ODBCINI'
+  env-var2-value: '/gsa/hurgsa/home/t/d/tdolby/tmp/db2-ssl-work-dir/odbc.ini'
+```  
+
+
+- If you set the following in server.conf.yaml, then the server will run the script before it starts initializing resource managers (pretty early, in other words):
+```  
+UserVariables:
+  startup-phase10-script: '/tmp/test-script.sh'
+```  
