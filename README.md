@@ -222,7 +222,7 @@ If the ACE application is started and listening to requests, you should see the 
 
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/testaceapp.png?raw=true" width="800">
 
-==Congratulations!! You have successfully deployed your App Connec Enterprise application using these instructions :joy==
+==Congratulations!! You have successfully deployed your App Connec Enterprise application using these instructions :joy:==
 
 ---
 ---
