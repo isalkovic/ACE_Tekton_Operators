@@ -366,7 +366,10 @@ CREATE TABLE DB2ADMIN.EMPLOYEES (PKEY INTEGER NOT NULL, FIRSTNAME VARCHAR(30), L
 ```  
 After creating the database, you will need to update the configuration and application files to match the parameters of your database instance.
 List of files which may require editing (depending on your database set-up):
--  */ace-toolkit-code/ExampleDatabaseCompute/DatabaseCompute_Compute.esql*, */extensions/db2cli.ini* , */odbcini/odbc.ini* and */setdbparms/setdbparms.txt* .
+- */ace-toolkit-code/ExampleDatabaseCompute/DatabaseCompute_Compute.esql*
+- */extensions/db2cli.ini*
+- */odbcini/odbc.ini*
+- */setdbparms/setdbparms.txt*
 
 
 ## Useful links
