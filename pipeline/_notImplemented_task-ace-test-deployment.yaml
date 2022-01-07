@@ -1,0 +1,73 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: ace-test-deployment
+spec:
+  params:
+    - name: integrationServerName
+      default: defaultname
+      description: The name of the integration server which will be deployed - will be used in Openshift deployment artefacts
+      type: string
+    - name: deployment-namespace
+      description: The name of the Openshift namespace/project , where the integration server and configuration will be deployed
+      default: ace-demo-tekton
+      type: string
+  steps:
+    - image: 'quay.io/openshift/origin-cli:latest'
+      name: check-pods-deployed
+      command:
+      - /bin/bash
+      args:
+      - -c
+      - |
+        set -e
+        deployment_name=$(oc get deployments | grep $(params.integrationServerName) | cut -f1 -d ' ')
+        pass="successfully rolled out"
+        count=0
+        while :
+        do
+        status="$(oc rollout status deployment "$deployment_name" | tr -d \")"
+        if [[ "$status" == *"$pass"* ]]
+        then
+          printf "Pods are deployed.\n\n"
+          sleep 2m
+          break
+        elif [ "$count" -eq "6" ]
+        then
+          printf "Pods failed to deploy after 5 minutes.\n\n"
+          exit 1
+        else
+        printf "Trying again\n\n"
+        fi
+        sleep 1m
+        count=$(($count + 1))
+        done
+      env:
+      - name: project
+        value: $(params.project)
+  - image: 'quay.io/openshift/origin-cli:latest'
+    name: check-service-running-ok
+    args:
+    - -c
+    - |
+      set -e
+      echo "Testing if endpoint is returning a 200 HTTP code"
+      base_url=$(oc get routes -n $(params.deployment-namespace) | grep -w $(params.integrationServerName)-http  | awk '{print $2}')
+      total_url=$base_url/ExampleServer
+      echo $total_url
+      if [[ "$(curl -o /dev/null --silent --head --write-out "%{http_code}" $total_url)" != "200" ]]
+      then
+        printf "Server is not serving json properly"
+        exit 1
+      else
+      printf "Server is serving json properly.\n\n"
+      fi
+      echo "done"
+    command:
+    - /bin/bash
+    env:
+    - name: project
+      value: $(params.project)
+  workspaces:
+    - name: output
+      description: The git repo will be cloned onto the volume backing this workspace
