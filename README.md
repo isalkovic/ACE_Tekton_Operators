@@ -43,6 +43,7 @@ Ideas for improvement:
 - differentiate new deployment from update
 - add option to deploy from custom image build (vs standard Operator deployment with BAR+ standard ACE image)
 - add a test step to verify that the application has started successfully and serving requests
+- add an explanation on how to create ibm-entitlement-key
 
 ## Tekton pipeline details
 The Tekton pipeline used in this scenario consists of a **"pipeline"** definition, 5 **"tasks"** and a **"pipeline run"**.  
@@ -282,7 +283,7 @@ In the Openshift console, go to Storage->PersistentVolumeClaims and click on the
 In order to do this, log in to your github account (if you do not have a github account you will have to open a new one before proceeding) and go to this repository page in your browser: https://github.com/isalkovic/ACE_Tekton_Operators.git
 Once there, in the top-right corner of the screen click on the "Fork" button - this action will fork the repository and after a couple of seconds redirect you to the forked repository on your account.  
 
-  <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/github_fork.png?raw=true" width="600">  
+  <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/github_fork.png?raw=true" width="400">  
 
 
 Make a note of your new repository URL - we will continue to reference it as $YOURGITREPOURL  
