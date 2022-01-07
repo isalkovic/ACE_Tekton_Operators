@@ -194,12 +194,14 @@ db2 create database USERS2
 CONNECT TO USERS2
 CREATE TABLE DB2ADMIN.EMPLOYEES (PKEY INTEGER NOT NULL, FIRSTNAME VARCHAR(30), LASTNAME VARCHAR(30), COUNTRY VARCHAR(2), PRIMARY KEY(PKEY))
 ```  
+
 After creating the database, you will need to update the configuration and application files to match the parameters of your database instance.
-List of files which may require editing (depending on your database set-up):
-- */ace-toolkit-code/ExampleDatabaseCompute/DatabaseCompute_Compute.esql*
-- */extensions/db2cli.ini*
-- */odbcini/odbc.ini*
-- */setdbparms/setdbparms.txt*
+List of files in your repository, which may require editing (depending on your database set-up):
+- */ace-toolkit-code/ExampleDatabaseCompute/DatabaseCompute_Compute.esql* - change the value of DB schema, if it is different for your database
+- */extensions/db2cli.ini* - change the Hostname, Port, Database (name) and Security parameters, to match those of your Database instance
+- */setdbparms/setdbparms.txt* - change the username and password of the database (last two entries in the line), to match those of your Database instance
+
+After you make changes to these files, you will need to commit and push them to your git repository.
 
 ---
 ## Test your work - start the pipeline
@@ -379,12 +381,19 @@ db2 create database USERS2
 CONNECT TO USERS2
 CREATE TABLE DB2ADMIN.EMPLOYEES (PKEY INTEGER NOT NULL, FIRSTNAME VARCHAR(30), LASTNAME VARCHAR(30), COUNTRY VARCHAR(2), PRIMARY KEY(PKEY))
 ```  
+
 After creating the database, you will need to update the configuration and application files to match the parameters of your database instance.
-List of files which may require editing (depending on your database set-up):
-- */ace-toolkit-code/ExampleDatabaseCompute/DatabaseCompute_Compute.esql*
-- */extensions/db2cli.ini*
-- */odbcini/odbc.ini*
-- */setdbparms/setdbparms.txt*
+List of files in your repository, which may require editing (depending on your database set-up):
+- */ace-toolkit-code/ExampleDatabaseCompute/DatabaseCompute_Compute.esql* - change the value of DB schema, if it is different for your database
+- */extensions/db2cli.ini* - change the Hostname, Port, Database (name) and Security parameters, to match those of your Database instance
+- */setdbparms/setdbparms.txt* - change the username and password of the database (last two entries in the line), to match those of your Database instance
+
+After you make changes to these files, you will need to commit and push them to your git repository.
+In your command line interface, execute the following commands, from your cloned repository folder:
+```
+git commit -a -m "changed database parameters"
+git push
+```  
 
 ---
 ## Useful links
