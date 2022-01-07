@@ -256,7 +256,7 @@ This action will add a new section in your Openshift console - "Pipelines" will 
 
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/NR%20NexusRepo.png?raw=true" width="300">
 
-On the "NexusRepo" tab, click the button "Create NexusRepo". Change the name if you like and click “Create” to create a new instance of Nexus repository.
+On the "NexusRepo" tab, click the button "Create NexusRepo". Change the name if you like and click “Create” to create a new instance of Nexus repository.  
 
 5. Since we want to access our Nexus repository from outside the cluster, we need to **expose it, using a route **. In the Openshift console, go to Networking->Routes and click on the "Create route" button . Give this route a name of your choice, select the nexus service under “Service” and select the only available Target port (should be 8081) . Click the “Create” button to create a new route.  
 
@@ -282,7 +282,7 @@ In the Openshift console, go to Storage->PersistentVolumeClaims and click on the
 In order to do this, log in to your github account (if you do not have a github account you will have to open a new one before proceeding) and go to this repository page in your browser: https://github.com/isalkovic/ACE_Tekton_Operators.git
 Once there, in the top-right corner of the screen click on the "Fork" button - this action will fork the repository and after a couple of seconds redirect you to the forked repository on your account.  
 
-  <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/github_fork?raw=true" width="600">  
+  <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/github_fork.png?raw=true" width="600">  
 
 
 Make a note of your new repository URL - we will continue to reference it as $YOURGITREPOURL  
