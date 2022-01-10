@@ -39,7 +39,7 @@ This document is a (functional) work in progress and will continue to be improve
 Ideas for improvement:
 - add webhook from github (currently starting pipeline manually for better control)
 - support more configuration types
-- take the version parameter from some property in the code/configuration/git , not from the pipeline parameter
+- take the version parameter from some property in the code/configuration/git , not fr  om the pipeline parameter
 - differentiate new deployment from update
 - add option to deploy from custom image build (vs standard Operator deployment with BAR+ standard ACE image)
 - add a test step to verify that the application has started successfully and serving requests
@@ -101,15 +101,15 @@ For the purpose of this scenario, we will be using two applications, which are a
 
 More information on these applications can be found [in the documentation](https://www.ibm.com/docs/en/app-connect/12.0?topic=enterprise-toolkit-tutorials-github) or through the ACE Toolkit, in the *Tutorials gallery*.
 These applications were chosen because they are simple and yet we can use them to demonstrate integration with external database using ODBC, as well as the configuration elements which are required to accomplish this. Also, **two** applications were chosen in order to demonstrate how to handle the situation where more than one application is deployed (and configured) per Integration server / container.
-If you want the applications to function properly after deploy to your environment, no changes are required to the **ExampleServer** application, but the **ExampleDatabaseCompute** application will require some changes, probably for the *DBSchema* parameter in the ESQL, if your database can not be set with the same schema (db2admin) as in this scenario. More details on this set-up can be found in the step-by-step instructions later in this document.
+If you want the applications to function properly after deployment to your environment, no changes are required to the **ExampleServer** application, but the **ExampleDatabaseCompute** application will require some changes, probably for the *DBSchema* parameter in the ESQL, if your database can not be set with the same schema (db2admin) as in this scenario. More details on this set-up can be found in the step-by-step instructions later in this document.
 
 It is easy to insert your own applications into this scenario, instead of the ones which come by default - simply delete the folders with existing application code and add the folders containing your applications. Just make sure you modify the configuration appropriately, if needed. :wink:
 
 ---
 ## ACE configuration details
 
-Configuration parameters set-up was one of the key steps, when building this scenario. The configuration typically follows the application code and varies depending on the application, but it can also be generic and specific to integration server runtime. Operator-based deployment and configuration of the ACE runtime requires that the configuration is provided in a specific format and in a specific way (unless you are baking your configuration in the container image).  
-ACE Operator supports the *Configuration* **Custom resource** and expects the configuration files/information to be *base64* encoded and passed as *spec.data* in the Custom resource. There are many "Configuration types" which are supported and a list of them, along with more details, can be found [in the ACE documentation](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=servers-configuration-types-integration).
+Configuration parameters set-up was one of the key steps, when building this scenario. The configuration typically follows the application code and varies depending on the application, but it can also be unrelated to applications and specific to integration server runtime. Operator-based deployment and configuration of the ACE runtime requires that the configuration is provided in a specific format and in a specific way (unless you are baking your configuration in the container image).  
+ACE Operator supports the **Configuration** *Custom resource* and expects the configuration files/information to be *base64* encoded and passed as *spec.data* in the Custom resource. There are many "Configuration types" which are supported and a list of them, along with more details, can be found [in the ACE documentation](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=servers-configuration-types-integration).
 At the time of preparing this document, the documentation was not detailed enough, at least for my taste.  
 Different configuration types have different rules on how to generate them, so some caution is required here. For example, **server.conf.yaml** type requires the server.conf.yaml file to be directly base64 encoded, while the **Generic files** and **Policy project** types require the files to be first compressed and then encoded to base64. However, one needs to be careful even here, because while **Generic files** type must be compressed without any directory structure, this is not the case with **Policy project** - where a folder with the policy project name is expected to be compressed along with the policy files. Another requirement is for these compressed files to be in the .zip format, which is not the first compression option in the Linux world, so it could require some additional preparation. For the purpose of this scenario, this logic has been implemented in the **generate_CRs.sh** script in the project root. The script takes care of all the configuration packaging details, and uses template files (which can be found in the *operator_resources_CRs* folder of the project) to create the **Custom resource** YAMLs expected by the ACE Operator. Now, all that is needed to configure our server is to create/copy appropriate configuration files in the *initial-config* folder of the project. Here, please mind the placement of configuration files in the appropriate subfolders.
 At the moment, the following **Configuration types** are supported by the script, as part of this scenario:
@@ -121,7 +121,7 @@ At the moment, the following **Configuration types** are supported by the script
 - [setdbparms.txt](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_setdbparmstxt.html)
 - [Truststore certificate](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_truststorecertificate.html)
 
-After the **Configuration** *Custom resource* yaml has been generated, this Configuration object needs to be referenced by the **Integration server** *Custom resource*. The script does this automatically for each configuration it generates, by listing the configuration **name** in the *spec.configuration* part of the **Integration server** *Custom resource*.
+After the **Configuration** *Custom resource* YAML has been generated, this Configuration object needs to be referenced by the **Integration server** *Custom resource*. The script does this automatically for each configuration it generates, by listing the configuration **name** in the *spec.configuration* part of the **Integration server** *Custom resource*.
 
 Similar like with the applications, it is easy to insert your own configuration into this scenario, instead of the provided configuration - simply edit the existing configuration files or add new ones. In case you need to add a configuration type which is not supported by the scenario, you will also need to edit the **generate_CRs.sh** script and create an appropriate template in the *operator_resources_CRs* folder of the project. :wink:
 
@@ -136,7 +136,7 @@ The following steps will include only short instructions (for readability reason
 
 3. Install the **Nexus Repository Operator**.
 
-4. Using the Nexus operator, create a **new instance of Nexus repository** (default settings are enough, choose name which you like).
+4. Using the Nexus operator, create a **new instance of Nexus repository** (default settings are enough, choose a name which you like).
 
 5. Create a new **Route** for the Nexus instance you have just created, by exposing the service which was created automatically.  
 Sign-in to Nexus using default credentials ( admin / admin123 ) -> default wizard starts - click to allow anonymous access to the repo.  
@@ -236,10 +236,10 @@ Congratulations!! You have successfully deployed your App Connec Enterprise appl
 ---
 ## Steps to configure the environment - VERY DETAILED
 Here you can find very detailed instructions for each step of this scenario.
-
+---
 1. We will start by **creating a new Openshift project**. The idea is to use a fresh/clean one, so that there is no interference with other existing projects and in this way all required resource dependencies are documented. Creating a new project is optional, but in that case you need to be aware that some steps may not be needed on your cluster.
 In Openshift, create a new project with the name of your choice. In further instructions, we will reference it as $PROJECT . When performing further steps, always make sure you are in your $PROJECT, either in the Openshift console or in the command line.
-
+---
 2. Next prerequisite is to have **Openshift Pipelines installed** on our cluster.
 In the Openshift console, go to Operators->Operator hub and search "Red Hat Openshift Pipelines" - when you find it, click on it, and install the Openshift Pipelines Operator.  
 
@@ -248,23 +248,23 @@ In the Openshift console, go to Operators->Operator hub and search "Red Hat Open
 This action will add a new section in your Openshift console - "Pipelines" will appear in the menu to the left.  
 
 ![RH Openshift pipelines menu](https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/Pipelines-menu.png?raw=true)
-
+---
 3. Since we will be using Nexus to store the BAR files that we build - we also need to **install and configure Nexus**. We will start by installing the "Nexus Repository Operator", which can be found again in the Operators->Operator hub - search for the "Nexus Repository Operator", click on it and install it in your $PROJECT .
 
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/Nexus%20Repository%20Operator.png?raw=true" width="300">  
-
+---
 4. After installing the Nexus Operator, we need to also **create a new Nexus instance**, using this operator. In the Openshift console, go to Operators->Installed operators and click on the Nexus Repository Operator.  
 
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/NR%20NexusRepo.png?raw=true" width="300">
 
 On the "NexusRepo" tab, click the button "Create NexusRepo". Change the name if you like and click “Create” to create a new instance of Nexus repository.  
-
+---
 5. Since we want to access our Nexus repository from outside the cluster, we need to **expose it, using a route **. In the Openshift console, go to Networking->Routes and click on the "Create route" button . Give this route a name of your choice, select the nexus service under “Service” and select the only available Target port (should be 8081) . Click the “Create” button to create a new route.  
 
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/nexus-route.png?raw=true" width="600">
 
 On the next screen you will see the details of the new route. Under location, make a note of the Nexus route URL - we will reference it as $NEXUSURL - you will need it later. Also, click on this URL to open it in your browser and to test that the Nexus repo is up and running and available. If the Nexus repository is started successfully (it may take a couple of minutes), the Nexus UI will appear. In the top-right corner, click the button to sign-in to Nexus using default credentials ( admin / admin123 ) -> default wizard starts - click to allow anonymous access to the repo.  
-
+---
 6. Next, we must **create a new Nexus repository**, where we will be storing the BAR files. In Nexus UI, Go to settings->Repository->Repositories and click on the “Create repository” button.  
 
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/Nexus-newRepo.png?raw=true" width="600">
@@ -272,15 +272,16 @@ On the next screen you will see the details of the new route. Under location, ma
 Select "maven2(hosted)" as type and proceed to give your repo a name - we will reference it as $NEXUSREPOSITORY.
 Under Hosted->"Deployment policy" change default to “Allow redeploy”. This will make it easier to run the demo - you will be allowed to upload the same bar more than once (which can happen if you do not change the code between builds/deploys). Also, set the “Layout policy” to “Permissive” - this will make Nexus more flexible towards the path that you choose for the upload of your bar file - for demo it is fine like this.
 On the bottom, click the “Create Repository” button.
-
+---
 7. Before proceeding to create the pipeline and pipeline elements, first you will need to **define a Persistent Volume Claim (PVC)** on your Openshift cluster. PVC is required by the pipeline, since this pipeline needs to exchange data between different pipeline Tasks - i.e. after you clone the repository and it’s files, they are later used in another Task to build the .bar file). To do this, we need persistent storage, since each pipeline Task runs as a separate container instance and as such is ephemeral.  Make sure that you are in the project which you have created earlier - $PROJECT. 
 In the Openshift console, go to Storage->PersistentVolumeClaims and click on the button “Create PersistentVolumeClaim”. Select appropriate storage class, for size put 1GiB and give it a name of your choice - we will reference it as $PVCNAME - while leaving other parameters default.  
  Click the button “Create” and make sure that the status of your PVC is “Bound”.  
 
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/PVC.png?raw=true" width="600">
-
-8. As a next step, you will **fork the Git repository to your account** (so that you can make changes to it) and after that **clone your forked Git repository** to your local machine. The Git repository contains sample application code, configuration example and pipeline definitions. You need to fork it and clone it, so that you can change the code, configuration and pipeline parameters to fit your environment.
-In order to do this, log in to your github account (if you do not have a github account you will have to open a new one before proceeding) and go to this repository page in your browser: https://github.com/isalkovic/ACE_Tekton_Operators.git
+---
+8. As a next step, you will **fork the Git repository to your account** (so that you can make changes to it) and after that **clone your forked Git repository** to your local machine.  
+The Git repository contains sample application code, configuration example and pipeline definitions. You need to fork it and clone it, so that you can change the code, configuration and pipeline parameters to fit your environment.  
+In order to do this, log in to your github account (if you do not have a github account you will have to open a new one before proceeding) and go to this repository page in your browser: https://github.com/isalkovic/ACE_Tekton_Operators.git  
 Once there, in the top-right corner of the screen click on the "Fork" button - this action will fork the repository and after a couple of seconds redirect you to the forked repository on your account.  
 
   <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/github_fork.png?raw=true" width="400">  
@@ -293,10 +294,10 @@ As the next step, clone this forked repo - in your command prompt, enter: 
 git clone $YOURGITREPOURL
 ```  
 
-Note: you will be asked for username and password in this step - for the username, enter your github username, and for the password visit [this github page(https://github.ibm.com/settings/tokens), generate a new access token (select only "repo" permissions) and provide it as a password.
+Note: if asked for a username and password in this step - for the username, enter your github username, and for the password visit [this github page](https://github.ibm.com/settings/tokens), generate a new access token (select only "repo" permissions) and provide it as a password.
 
 That's it - now you have your own copy of this repo (in the *ACE_Tekton_Operators* folder) and you can start making changes to it.
-
+---
 9. Before we continue, let's login to our Openshift cluster from the command line ( for this step, you will need to have the 'oc' command installed ). In the top-right corner of the Openshift console, click on your username and after that click of the “Copy login command” in the menu.  
 
  <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/oclogincmd.png?raw=true" width="300">   
@@ -311,10 +312,11 @@ After successfully logging in, switch to the openshift project which you have cr
 ```  
 oc project $PROJECT
 ```  
-
-10. Another requirement of the pipeline (ace-build-bar Task) is to have an **appropriate container image, which is suitable to run “ibm int” commands**, which we need to execute in order to build the code generated in ACE Toolkit. We want this image to be as small and light as possible, but IBM does not provide such an image, so we need to build it. To build this light image, I have used some resources provided by Trevor Dolby, IBM ACE Architect.  
+---
+10. Another requirement of the pipeline (ace-build-bar Task) is to have an **appropriate container image, which is suitable to run “ibm int” commands**, which we need to execute in order to build the code generated in ACE Toolkit.  
+We want this image to be as small and light as possible, but IBM does not provide such an image, so we need to build it. To build this light image, I have used some resources provided by Trevor Dolby, IBM ACE Architect.  
 OK, so how will we do this? Start from the git repository which you have cloned in the previous step. Inside, there is a folder named 'ace-minimal-image'.  
-Using the Dockerfile.aceminimalubuntu dockerfile, **build a new image** (for this you will need to have either docker or alternative CLI installed on your machine):  
+Using the *Dockerfile.aceminimalubuntu* dockerfile, **build a new image** (for this you will need to have either docker or alternative CLI installed on your machine):  
 ```
  docker build -t ace-with-zip -f Dockerfile.aceminimalubuntu .
 ```
@@ -350,11 +352,15 @@ podman tag ace-with-zip $IMAGEREPOSITORY/$PROJECT/ace-with-zip:latest
 podman push --tls-verify=false $IMAGEREPOSITORY/$PROJECT/ace-with-zip:latest 
 ```  
 
+---
 11. Next, navigate to the “pipeline” directory of this repository. You will need to **do some modifications to pipeline elements definitions**, in order for the pipeline to run successfully on your cluster. At minimal, do the following modifications:
 
 | File name | Changes to be made |
 | ----------------------------- | ----------- |
-| pipeline-ace-build-and-deploy.yaml	 | Modify the default value of parameter “git-url” to match the name of your forked github repository - $YOURGITREPOURL. Modify the default value of parameter “deployment-namespace” to match the name of your Openshift $PROJECT. Modify the default value of parameter “nexus-repository-name” to match the name of your $NEXUSREPOSITORY. Find parameter “nexus-server-base-url” and modify it to the Nexus base URL of your Nexus instance. Normally, this should be the $NEXUSURL URL which is the URL of your Nexus route, which you noted earlier. |
+| pipeline-ace-build-and-deploy.yaml	 | Modify the default value of parameter “git-url” to match the name of your forked github repository - $YOURGITREPOURL.  
+Modify the default value of parameter “deployment-namespace” to match the name of your Openshift $PROJECT.  
+Modify the default value of parameter “nexus-repository-name” to match the name of your $NEXUSREPOSITORY.  
+Find parameter “nexus-server-base-url” and modify it to the Nexus base URL of your Nexus instance. Normally, this should be the $NEXUSURL URL which is the URL of your Nexus route, which you noted earlier. |
 | pipelinerun-ace-build-and-deploy-run.yaml | Only in the case that you decided to change the name of the Persistent Volume Claim (PVC) , which you have created earlier, make a change to spec.workspaces.persistentVolumeClaim.claimName parameter, to match the name you have chosen. |  
 | task-ace-build-bar.yaml | Update the spec.steps.image parameter, to be pointing to your ace image which you have built previously - meaning correct repository address, project and image name and tag. |
 | task-ace-deploy-crs.yaml | N/A |
@@ -362,6 +368,7 @@ podman push --tls-verify=false $IMAGEREPOSITORY/$PROJECT/ace-with-zip:latest 
 | task-ace-nexus-upload-bar.yaml | N/A |
 | task-git-clone.yaml	 | N/A |
 
+---
 12. After you have made the appropriate changes, proceed with **applying these pipeline definitions (yaml files) to your Openshift cluster**.  
 In the command prompt, enter:  
 
@@ -374,22 +381,27 @@ where you change the name of the YAML file, for each of the files in the pipelin
 
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/ocimportyaml.png?raw=true" width="300">
 
-Click “Create” button to apply the pipeline element.  Do this for all the files in the pipeline directory.
+Click “Create” button to apply the pipeline element.  Do this for all the files in the pipeline directory.  
 
-13. As the last step, before testing your pipeline, we need to **configure a db2 database**, so that our **ExampleDatabaseCompute** ACE application can connect to it and insert data into it. This step is not mandatory and your app and server will still run, even if you do not configure a database (but returning error messages :wink: ). If you already have a db2 database in your cluster, feel free to use it (wherever it is, just make sure there is network connectivity). As you probably do not have such an instance lying around, I suggest you create an instance of *IBM Db2 on Cloud*, [here](https://cloud.ibm.com/catalog/services/db2). It takes only minutes to set-up. Whichever database you choose, you will need to create a new database and a new table:  
+---
+13. As the last step, before testing your pipeline, we need to **configure a db2 database**, so that our **ExampleDatabaseCompute** ACE application can connect to it and insert data into it.  
+This step is not mandatory and your app and server will still run, even if you do not configure a database (but returning error messages :wink: ).  
+If you already have a db2 database in your cluster, feel free to use it (wherever it is, just make sure there is network connectivity).  
+As you probably do not have such an instance lying around, I suggest you create an instance of *IBM Db2 on Cloud*, [here](https://cloud.ibm.com/catalog/services/db2). It takes only minutes to set-up.  
+Whichever database you choose, you will need to create a new database and a new table:  
 ```
 db2 create database USERS2
 CONNECT TO USERS2
 CREATE TABLE DB2ADMIN.EMPLOYEES (PKEY INTEGER NOT NULL, FIRSTNAME VARCHAR(30), LASTNAME VARCHAR(30), COUNTRY VARCHAR(2), PRIMARY KEY(PKEY))
 ```  
 
-After creating the database, you will need to update the configuration and application files to match the parameters of your database instance.
+After creating the database, you will need to update the configuration and application files to match the parameters of your database instance.  
 List of files in your repository, which may require editing (depending on your database set-up):
 - */ace-toolkit-code/ExampleDatabaseCompute/DatabaseCompute_Compute.esql* - change the value of DB schema, if it is different for your database
 - */extensions/db2cli.ini* - change the Hostname, Port, Database (name) and Security parameters, to match those of your Database instance
 - */setdbparms/setdbparms.txt* - change the username and password of the database (last two entries in the line), to match those of your Database instance
 
-After you make changes to these files, you will need to commit and push them to your git repository.
+After you make changes to these files, you will need to commit and push them to your git repository.  
 In your command line interface, execute the following commands, from your cloned repository folder:
 ```
 git commit -a -m "changed database parameters"
