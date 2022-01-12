@@ -19,6 +19,8 @@ spec:
   steps:
     - image: 'image-registry.openshift-image-registry.svc:5000/ace-ivo/ace-with-zip'
       name: run-ibm-int
+      securityContext:
+        runAsUser: 1001
       env:
           - name: BAR_NAME_WITHOUT_EXTENSION
             value: $(params.barNameWithoutExtension)
