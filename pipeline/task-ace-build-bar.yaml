@@ -17,7 +17,7 @@ spec:
       description: The base directory containing ACE projects
       type: string
   steps:
-    - image: 'image-registry.openshift-image-registry.svc:5000/ace-ivo/ace-with-zip'
+    - image: 'image-registry.openshift-image-registry.svc:5000/ace-demo/ace-with-zip'
       name: run-ibm-int
       securityContext:
         runAsUser: 1001

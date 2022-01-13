@@ -111,7 +111,9 @@ It is easy to insert your own applications into this scenario, instead of the on
 Configuration parameters set-up was one of the key steps, when building this scenario. The configuration typically follows the application code and varies depending on the application, but it can also be unrelated to applications and specific to integration server runtime. Operator-based deployment and configuration of the ACE runtime requires that the configuration is provided in a specific format and in a specific way (unless you are baking your configuration in the container image).  
 ACE Operator supports the **Configuration** *Custom resource* and expects the configuration files/information to be *base64* encoded and passed as *spec.data* in the Custom resource. There are many "Configuration types" which are supported and a list of them, along with more details, can be found [in the ACE documentation](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=servers-configuration-types-integration).
 At the time of preparing this document, the documentation was not detailed enough, at least for my taste.  
-Different configuration types have different rules on how to generate them, so some caution is required here. For example, **server.conf.yaml** type requires the server.conf.yaml file to be directly base64 encoded, while the **Generic files** and **Policy project** types require the files to be first compressed and then encoded to base64. However, one needs to be careful even here, because while **Generic files** type must be compressed without any directory structure, this is not the case with **Policy project** - where a folder with the policy project name is expected to be compressed along with the policy files. Another requirement is for these compressed files to be in the .zip format, which is not the first compression option in the Linux world, so it could require some additional preparation. For the purpose of this scenario, this logic has been implemented in the **generate_CRs.sh** script in the project root. The script takes care of all the configuration packaging details, and uses template files (which can be found in the *operator_resources_CRs* folder of the project) to create the **Custom resource** YAMLs expected by the ACE Operator. Now, all that is needed to configure our server is to create/copy appropriate configuration files in the *initial-config* folder of the project. Here, please mind the placement of configuration files in the appropriate subfolders.
+Different configuration types have different rules on how to generate them, so some caution is required here. For example, **server.conf.yaml** type requires the server.conf.yaml file to be directly base64 encoded, while the **Generic files** and **Policy project** types require the files to be first compressed and then encoded to base64. However, one needs to be careful even here, because while **Generic files** type must be compressed without any directory structure, this is not the case with **Policy project** - where a folder with the policy project name is expected to be compressed along with the policy files.  
+Another requirement is for these compressed files to be in the .zip format, which is not the first compression option in the Linux world, so it could require some additional preparation. For the purpose of this scenario, this logic has been implemented in the **generate_CRs.sh** script in the project root. The script takes care of all the configuration packaging details, and uses template files (which can be found in the *operator_resources_CRs* folder of the project) to create the **Custom resource** YAMLs expected by the ACE Operator.  
+Now, all that is needed to configure our server is to create/copy appropriate configuration files in the *initial-config* folder of the project. Here, please mind the placement of configuration files in the appropriate subfolders.
 At the moment, the following **Configuration types** are supported by the script, as part of this scenario:
 - [BarAuth](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_barauth.html)
 - [Generic files](https://www.ibm.com/docs/en/SSTTDS_contcd/com.ibm.ace.icp.doc/config_genericfiles.html)
@@ -152,6 +154,9 @@ Under Hosted->"Deployment policy" change default to “Allow redeploy”. This w
  Select appropriate storage class, for size put 1GiB and give it a name of your choice - we will reference it as $PVCNAME - while leaving other parameters default.  
  Click the button “Create” and make sure that the status of your PVC is “Bound”.  
 
+Note:: I have noticed different behaviour of the pipeline, depending on the Storage class being used for the PVC. Depending on what you select, it is possible that your pipeline Tasks will run into problems with file permissions.  
+I can confirm that there were no issues with *OCS provided Filesystem volume* and thin vmware storage classes on my local cluster and with *ibmc-file-bronze-gid* storage class, when using ROKS on IBM Cloud.
+
 9. As a next step, you will **fork the Git repository to your account** (so that you can make changes to it) and after that **clone your forked Git repository** to your local machine. The Git repository contains sample application code, configuration example and pipeline definitions. You need to fork it and clone it, so that you can change the code, configuration and pipeline parameters to fit your environment.
 Fork this repository - https://github.com/isalkovic/ACE_Tekton_Operators.git - and after that clone it to your local machine.
 
@@ -164,7 +169,7 @@ oc project $PROJECT
 
 11. Another requirement of the pipeline (ace-build-bar Task) is to **have an appropriate container image, which is suitable to run “ibm int” commands**, which we need to execute in order to build the code generated in ACE Toolkit.  
 Inside the git repo you have cloned previously, there is a folder named 'ace-minimal-image'.  
-Using the Dockerfile.aceminimalubuntu dockerfile, build a new image and tag it for your Openshift registry (  Make sure that the registry is exposed and that you note it’s exposed URL as $IMAGEREPOSITORY ) :  
+Using the Dockerfile.aceminimalubuntu dockerfile, build a new image and tag it for your Openshift registry (  Make sure that the registry is exposed and that you note it’s exposed URL as $IMAGEREPOSITORY ) , and push it to your registry:  
 
 ```
  docker build -t ace-with-zip -f Dockerfile.aceminimalubuntu .
@@ -227,13 +232,24 @@ If the pipeline was successful, you should see a completely green “Task status
 
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/pipeline-success.png?raw=true" width="800">  
 
-Once successfully completed, you can check if the sample app which was deployed is running and available.
-To do this, on the Openshift console (make sure you are in your project) , go to Networking->Routes and find the route “Location” of your ACE server ( hint: it will have the name of the server which you have configured when editing the pipeline-ace-build-and-deploy.yaml pipeline file ). Open the URL in your browser and add the “/ExampleServer” path at the end.
+Once successfully completed, you can check if the sample applications which were deployed are running and available.
+To do this, on the Openshift console (make sure you are in your project) , go to Networking->Routes and find the route “Location” of your ACE server ( hint: it will have the name of the server which you have configured when editing the pipeline-ace-build-and-deploy.yaml pipeline file ).  
+- For the HTTP Example app, open the URL in your browser and add the “/ExampleServer” path at the end.
 If the ACE application is started and listening to requests, you should see the following message (exact view depends on your browser):  
 
-<img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/testaceapp.png?raw=true" width="800">
+<img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/testaceapp.png?raw=true" width="800">  
 
-Congratulations!! You have successfully deployed your App Connec Enterprise application using these instructions!
+
+- For the Database app, open the URL in your browser and add the “/DatabaseComput” path at the end.
+If the ACE application is started and listening to requests, you should see the following message (exact view depends on your browser):  
+
+<img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/testacedbapp.png?raw=true" width="800">  
+
+Note: if you did not configure a database and it's connection, you will get some error message as a response
+
+---  
+
+Congratulations!! You have successfully deployed your App Connect Enterprise application using these instructions!
 
 ---
 ---
@@ -303,9 +319,12 @@ On the bottom, click the “Create Repository” button.
 
 8. Before proceeding to create the pipeline and pipeline elements, first you will need to **define a Persistent Volume Claim (PVC)** on your Openshift cluster. PVC is required by the pipeline, since this pipeline needs to exchange data between different pipeline Tasks - i.e. after you clone the repository and it’s files, they are later used in another Task to build the .bar file). To do this, we need persistent storage, since each pipeline Task runs as a separate container instance and as such is ephemeral.  Make sure that you are in the project which you have created earlier - $PROJECT. 
 In the Openshift console, go to Storage->PersistentVolumeClaims and click on the button “Create PersistentVolumeClaim”. Select appropriate storage class, for size put 1GiB and give it a name of your choice - we will reference it as $PVCNAME - while leaving other parameters default.  
- Click the button “Create” and make sure that the status of your PVC is “Bound”.  
+ Click the button “Create” and make sure that the status of your PVC is “Bound” (it could take a minute sometimes).  
 
 <img src="https://github.com/isalkovic/ACE_Tekton_Operators-documentation/blob/main/images/PVC.png?raw=true" width="600">  
+
+Note:: I have noticed different behaviour of the pipeline, depending on the Storage class being used for the PVC. Depending on what you select, it is possible that your pipeline Tasks will run into problems with file permissions.  
+I can confirm that there were no issues with *OCS provided Filesystem volume* and thin vmware storage classes on my local cluster and with *ibmc-file-bronze-gid* storage class, when using ROKS on IBM Cloud.
 
 ---  
 

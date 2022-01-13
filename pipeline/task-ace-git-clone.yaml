@@ -217,12 +217,8 @@ spec:
 
         printf "%s" "${RESULT_SHA}" > "$(results.commit.path)"
 
-        printf "%s" "${PARAM_URL}" > "$(results.url.path)" # Add an extra step
-        to list the contents of /workspace
+        printf "%s" "${PARAM_URL}" > "$(results.url.path)" 
 
-        echo "========== Applying 777 to the workspace, to later avoid problems with different users in different pods =========="
-
-        chmod -R 777 /workspace
     - args:
         - '-c'
         - |
