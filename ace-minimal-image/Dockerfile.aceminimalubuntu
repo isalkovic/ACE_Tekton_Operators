@@ -43,7 +43,7 @@ RUN cat /tmp/excludes-base.txt >> /tmp/all-excludes.txt && \
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates zip binutils && \
     mkdir /opt/ibm && \
     echo Downloading package ${DOWNLOAD_URL} && \
-    curl ${DOWNLOAD_URL} \
+    curl -L ${DOWNLOAD_URL} \
     | tar zx --exclude-from=/tmp/all-excludes.txt --directory /opt/ibm && \
     mv /opt/ibm/${PRODUCT_LABEL} /opt/ibm/ace-12 && \
     find /opt/ibm -name "*.so*" -exec strip {} ";" && \
