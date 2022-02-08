@@ -118,8 +118,9 @@ then
 	if [ "$(ls -A ${DIRpolicies})" ]; then
     echo "Generating policy CR yaml"
 		# alternative to zip - requires tar and compress:: tar -cZf ${PathToConfigFolder}/policy.zip -C ${DIRpolicies} .
-    # works if you have zip installed::
-		zip -r - ${DIRpolicies}/* > ${PathToConfigFolder}/policy.zip -x '*.zip*'
+    # below works if you have zip installed::
+		cd ${DIRpolicies}
+		zip -r - * > ${PathToConfigFolder}/policy.zip -x '*.zip*'
     policy=$(base64 -w 0 ${PathToConfigFolder}/policy.zip)
     sed -e "s/replace-with-namespace/${DEPLOYMENT_NAMESPACE}/" -e "s~replace-with-policy-name~${BAR_NAME}-policy~" -e "s~replace-with-policy-base64~${policy}~" ${CRs_template_folder}/configuration_policyProject.yaml > ${CRs_generated_folder}/configurations/policyProject-generated.yaml
     #add reference to this config cr to integration server cr
