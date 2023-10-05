@@ -8,6 +8,13 @@ spec:
   pipelineRef:
     name: ace-build-and-deploy-pipeline
   serviceAccountName: pipeline
+  taskRunSpecs:
+    - pipelineTaskName: ace-generate-crs
+      taskPodTemplate:
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          fsGroup: 0
   timeout: 0h15m0s
   workspaces:
     - name: git-source
